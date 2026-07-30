@@ -94,19 +94,11 @@ async function suksesScan(decodedText){
 
         });
 
-        const hasil = await response.json();
+        const text = await response.text();
 
-        if(hasil.status){
+alert(text);
 
-            document.getElementById("hasil").innerHTML =
-                "✅ " + hasil.pesan;
-
-        }else{
-
-            document.getElementById("hasil").innerHTML =
-                "❌ " + hasil.pesan;
-
-        }
+document.getElementById("hasil").innerHTML = text;
 
     }catch(err){
 
