@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSENSI QR SMP N 4 PADAHERANG</title>
 
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Library QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>ABSENSI QR SMP N 4 PADAHERANG</h1>
+    <p>Scan QR untuk Absen Masuk dan Pulang</p>
+</div>
+
+<div class="container">
+
+    <button class="btn-masuk" onclick="pilihMode('MASUK')">
+        ABSEN MASUK
+    </button>
+
+    <button class="btn-pulang" onclick="pilihMode('PULANG')">
+        ABSEN PULANG
+    </button>
+
+    <div id="reader"></div>
+
+    <div id="hasil">
+        Silakan pilih mode
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
