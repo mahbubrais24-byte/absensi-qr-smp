@@ -1,19 +1,10 @@
-// ===========================
-// KONFIGURASI
-// ===========================
-
-// GANTI DENGAN URL WEB APP APPS SCRIPT BAPAK
 const API_URL = "https://script.google.com/macros/s/AKfycbwJYCfcKvqOUsSspYHJlJ3sqNzMYx6XkoY5C0ZLcX1Sbkce1F5v4uFYkr5L--6rqDWT/exec";
 
 let html5QrCode = null;
 let modeAbsen = "";
 let sedangScan = false;
 
-// ===========================
-// PILIH MODE
-// ===========================
-
-function pilihMode(mode){
+function pilihMode(mode) {
 
     modeAbsen = mode;
 
@@ -21,92 +12,74 @@ function pilihMode(mode){
         "<b>Mode : " + mode + "</b><br>Mengaktifkan kamera...";
 
     mulaiScanner();
-
 }
 
-// ===========================
-// MULAI SCANNER
-// ===========================
+async function mulaiScanner() {
 
-async function mulaiScanner(){
+    if (html5QrCode) {
 
-    if(html5QrCode){
-
-        try{
+        try {
             await html5QrCode.stop();
-        }catch(e){}
+        } catch (e) {}
 
-        try{
+        try {
             await html5QrCode.clear();
-        }catch(e){}
+        } catch (e) {}
     }
 
     html5QrCode = new Html5Qrcode("reader");
 
     html5QrCode.start(
-
+        { facingMode: "environment" },
         {
-            facingMode:"environment"
+            fps: 10,
+            qrbox: 250
         },
-
-        {
-            fps:10,
-            qrbox:250
-        },
-
         suksesScan,
-
-        function(){}
-
+        function () {}
     );
-
 }
 
-// ===========================
-// SAAT QR BERHASIL
-// ===========================
+async function suksesScan(decodedText) {
 
-async function suksesScan(decodedText){
-
-    if(sedangScan) return;
+    if (sedangScan) return;
 
     sedangScan = true;
 
-    document.getElementById("hasil").innerHTML =
-        "Mengirim data...";
+    document.getElementById("hasil").innerHTML = "Mengirim data...";
 
-    try{
+    try {
 
-        const response = await fetch(API_URL,{
+        const url =
+            API_URL +
+            "?api=absen" +
+            "&nis=" + encodeURIComponent(decodedText.trim()) +
+            "&mode=" + encodeURIComponent(modeAbsen);
 
-            method:"POST",
+        const response = await fetch(url);
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        const hasil = await response.json();
 
-            body:JSON.stringify({
+        if (hasil.status) {
 
-                nis:decodedText.trim(),
-                mode:modeAbsen
+            document.getElementById("hasil").innerHTML =
+                "✅ " + hasil.pesan;
 
-            })
+        } else {
 
-        });
+            document.getElementById("hasil").innerHTML =
+                "❌ " + hasil.pesan;
 
-        const text = await response.text();
+        }
 
-alert(text);
+    } catch (err) {
 
-document.getElementById("hasil").innerHTML = text;
+        document.getElementById("hasil").innerHTML =
+            "❌ Error : " + err;
 
-    }catch(err){
+    }
 
-    console.error(err);
-
-    document.getElementById("hasil").innerHTML =
-        "❌ " + err.message;
-
-    alert(err.message);
-
+    setTimeout(function () {
+        sedangScan = false;
+    }, 3000);
 }
