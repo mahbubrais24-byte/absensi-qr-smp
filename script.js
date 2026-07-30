@@ -110,15 +110,11 @@ async function suksesScan(decodedText){
 
     }catch(err){
 
-        document.getElementById("hasil").innerHTML =
-            "❌ " + err;
+    console.error(err);
 
-    }
+    document.getElementById("hasil").innerHTML =
+        "❌ " + err.message;
 
-    setTimeout(function(){
-
-        sedangScan = false;
-
-    },3000);
+    alert(err.message);
 
 }
