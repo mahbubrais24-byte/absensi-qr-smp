@@ -17,6 +17,8 @@ scanner.start(
 
     function(decodedText){
 
+    alert("QR Terbaca : " + decodedText);
+
     if (sedangProses) return;
 
     sedangProses = true;
