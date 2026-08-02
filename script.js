@@ -91,6 +91,18 @@ if (hasil.siswa) {
 
     sedangProses = false;
 
+    document.getElementById("nama").innerHTML = "-";
+
+    document.getElementById("nis").innerHTML = "-";
+
+    document.getElementById("kelas").innerHTML = "-";
+
+    document.getElementById("status").innerHTML = "Menunggu Scan...";
+
+    document.getElementById("status").classList.remove("sukses");
+
+    document.getElementById("status").classList.remove("gagal");
+
 }, 2000);
     
 }
