@@ -190,8 +190,24 @@ h2{
 
 }
 
+#reader video{
+    width: 100% !important;
+    height: 200px !important;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+#reader{
+    overflow: hidden;
+}
+
 #btnPulang:hover{
 
     background:#8e0000;
 
+}
+
+#reader img{
+    width: 100% !important;
+    height: 200px !important;
 }
