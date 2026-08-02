@@ -49,4 +49,10 @@ async function kirimAbsensi(nis, mode) {
 
 }
 
+async function kirimAbsensi(nis, mode) {
+
+    ...
+
+}
+
 kirimAbsensi("3131232652", "MASUK");
