@@ -166,6 +166,30 @@ h2{
 
 }
 
+/* ===== STATUS BERHASIL ===== */
+
+.sukses{
+
+    background:#d4edda !important;
+
+    color:#155724 !important;
+
+    border:2px solid #28a745;
+
+}
+
+/* ===== STATUS GAGAL ===== */
+
+.gagal{
+
+    background:#f8d7da !important;
+
+    color:#721c24 !important;
+
+    border:2px solid #dc3545;
+
+}
+
 #btnPulang:hover{
 
     background:#8e0000;
