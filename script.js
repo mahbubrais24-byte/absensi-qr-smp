@@ -11,9 +11,9 @@ scanner.start(
 
     function(decodedText){
 
-        alert("QR : " + decodedText);
+    document.getElementById("nis").innerHTML = decodedText;
 
-    },
+}
 
     function(error){
 
