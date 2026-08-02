@@ -53,7 +53,23 @@ async function kirimAbsensi(nis, mode) {
 
         const hasil = await response.json();
 
-        document.getElementById("status").innerHTML = hasil.pesan;
+        const status = document.getElementById("status");
+
+status.innerHTML = hasil.pesan;
+
+status.classList.remove("sukses");
+
+status.classList.remove("gagal");
+
+if (hasil.status){
+
+    status.classList.add("sukses");
+
+}else{
+
+    status.classList.add("gagal");
+
+}
 
 if (hasil.siswa) {
 
