@@ -6,6 +6,8 @@ let sedangProses = false;
 
 const scanner = new Html5Qrcode("reader");
 
+alert("Script berhasil dimuat");
+
 scanner.start(
 
     { facingMode: "environment" },
