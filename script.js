@@ -24,3 +24,29 @@ scanner.start(
     }
 
 );
+
+async function kirimAbsensi(nis, mode) {
+
+    try {
+
+        const response = await fetch(
+            API_URL +
+            "?nis=" + encodeURIComponent(nis) +
+            "&mode=" + encodeURIComponent(mode)
+        );
+
+        const hasil = await response.json();
+
+        console.log(hasil);
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Gagal menghubungi server.");
+
+    }
+
+}
+
+kirimAbsensi("3131232652", "MASUK");
