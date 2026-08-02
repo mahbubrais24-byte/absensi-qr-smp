@@ -2,6 +2,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzw6CoOg9xNm6-dGgJxeWZD
 
 let modeAbsen = "MASUK";
 
+let sedangProses = false;
+
 const scanner = new Html5Qrcode("reader");
 
 scanner.start(
@@ -15,7 +17,15 @@ scanner.start(
 
     function(decodedText){
 
+    if (sedangProses) return;
+
+    sedangProses = true;
+
     document.getElementById("nis").innerHTML = decodedText;
+
+    document.getElementById("status").innerHTML = "Mengirim absensi...";
+
+    kirimAbsensi(decodedText, modeAbsen);
 
 },
 
@@ -39,7 +49,17 @@ async function kirimAbsensi(nis, mode) {
 
         const hasil = await response.json();
 
-        console.log(hasil);
+        document.getElementById("status").innerHTML = hasil.pesan;
+
+if (hasil.siswa) {
+
+    document.getElementById("nama").innerHTML = hasil.siswa.nama;
+
+    document.getElementById("nis").innerHTML = hasil.siswa.nis;
+
+    document.getElementById("kelas").innerHTML = hasil.siswa.kelas;
+
+}
 
     } catch (err) {
 
@@ -49,6 +69,12 @@ async function kirimAbsensi(nis, mode) {
 
     }
 
+    setTimeout(function () {
+
+    sedangProses = false;
+
+}, 2000);
+    
 }
 
 // kirimAbsensi("3131232652", "MASUK");
