@@ -9,12 +9,10 @@ const scanner = new Html5Qrcode("reader");
 alert("Script berhasil dimuat");
 
 scanner.start(
-
     { facingMode: "environment" },
-
     {
         fps: 10,
-        qrbox: 250
+        qrbox: 180
     },
 
     function(decodedText){
