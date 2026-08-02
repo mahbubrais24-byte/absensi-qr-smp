@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABSENSI QR SMP N 4 PADAHERANG</title>
 
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
 
-    <!-- Library QR Scanner -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Absensi QR SMPN 4 Padaherang</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div class="header">
-    <h1>ABSENSI QR SMP N 4 PADAHERANG</h1>
-    <p>Scan QR untuk Absen Masuk dan Pulang</p>
-</div>
-
 <div class="container">
 
-    <button class="btn-masuk" onclick="pilihMode('MASUK')">
-        ABSEN MASUK
-    </button>
+<h1>ABSENSI QR</h1>
 
-    <button class="btn-pulang" onclick="pilihMode('PULANG')">
-        ABSEN PULANG
-    </button>
+<h2>SMPN 4 PADAHERANG</h2>
 
-    <div id="reader"></div>
+<div id="reader">
 
-    <div id="hasil">
-        Silakan pilih mode
-    </div>
+Kamera akan tampil di sini
+
+</div>
+
+<div class="info">
+
+<p><b>Nama :</b> <span id="nama">-</span></p>
+
+<p><b>NIS :</b> <span id="nis">-</span></p>
+
+<p><b>Kelas :</b> <span id="kelas">-</span></p>
+
+</div>
+
+<div id="status">
+
+Menunggu Scan...
+
+</div>
+
+<div class="tombol">
+
+<button id="btnMasuk">
+
+ABSEN MASUK
+
+</button>
+
+<button id="btnPulang">
+
+ABSEN PULANG
+
+</button>
+
+</div>
 
 </div>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
