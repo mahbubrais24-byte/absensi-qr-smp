@@ -1,1 +1,173 @@
+/* ==========================
+   ABSENSI QR SMPN 4 PADAHERANG
+========================== */
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial, Helvetica, sans-serif;
+
+    background:#f3f6fb;
+
+    color:#333;
+
+}
+
+.container{
+
+    max-width:500px;
+
+    margin:30px auto;
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:25px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+h1{
+
+    text-align:center;
+
+    color:#0d47a1;
+
+    margin-bottom:10px;
+
+    font-size:34px;
+
+}
+
+h2{
+
+    text-align:center;
+
+    color:#444;
+
+    margin-bottom:25px;
+
+    font-size:22px;
+
+}
+
+#reader{
+
+    height:260px;
+
+    border:3px dashed #0d47a1;
+
+    border-radius:10px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#666;
+
+    background:#fafafa;
+
+    margin-bottom:25px;
+
+}
+
+.info{
+
+    line-height:2;
+
+    font-size:18px;
+
+}
+
+.info span{
+
+    font-weight:bold;
+
+    color:#0d47a1;
+
+}
+
+#status{
+
+    margin-top:20px;
+
+    text-align:center;
+
+    padding:12px;
+
+    background:#e3f2fd;
+
+    border-radius:8px;
+
+    color:#0d47a1;
+
+    font-weight:bold;
+
+}
+
+.tombol{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:25px;
+
+}
+
+.tombol button{
+
+    flex:1;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+    transition:.3s;
+
+}
+
+#btnMasuk{
+
+    background:#2e7d32;
+
+    color:white;
+
+}
+
+#btnMasuk:hover{
+
+    background:#1b5e20;
+
+}
+
+#btnPulang{
+
+    background:#c62828;
+
+    color:white;
+
+}
+
+#btnPulang:hover{
+
+    background:#8e0000;
+
+}
