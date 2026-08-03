@@ -128,6 +128,34 @@ scanner.start(
 
 );
 
+async function ambilStatistik() {
+
+    try {
+
+        const response = await fetch(
+            API_URL + "?api=statistik"
+        );
+
+        const hasil = await response.json();
+
+        if (hasil.status) {
+
+            document.getElementById("jmlMasuk").innerHTML =
+                hasil.masuk;
+
+            document.getElementById("jmlPulang").innerHTML =
+                hasil.pulang;
+
+        }
+
+    } catch (err) {
+
+        console.log(err);
+
+    }
+
+}
+
 async function kirimAbsensi(nis, mode) {
 
     try {
@@ -167,6 +195,8 @@ if (hasil.siswa) {
     document.getElementById("kelas").innerHTML = hasil.siswa.kelas;
 
 }
+
+ambilStatistik();
 
     } catch (err) {
 
@@ -221,4 +251,8 @@ document.getElementById("btnPulang").onclick = function () {
 
 tampilJam();
 
+ambilStatistik();
+
 setInterval(tampilJam,1000);
+
+setInterval(ambilStatistik,10000);
