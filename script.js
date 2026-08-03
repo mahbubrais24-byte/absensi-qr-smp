@@ -27,7 +27,7 @@ function bunyiBeep() {
 
 }
 
-let modeAbsen = "MASUK";
+let modeAbsen = "";
 
 let sedangProses = false;
 
@@ -43,6 +43,15 @@ scanner.start(
     },
 
     function(decodedText){
+
+    if (modeAbsen == "") {
+
+    document.getElementById("status").innerHTML =
+    "Silakan pilih ABSEN MASUK atau ABSEN PULANG";
+
+    return;
+
+}
 
     alert("QR Terbaca : " + decodedText);
 
