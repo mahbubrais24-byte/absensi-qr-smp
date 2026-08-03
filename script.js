@@ -44,6 +44,10 @@ scanner.start(
 
     function(decodedText){
 
+    if (sedangProses) {
+    return;
+}
+
     if (modeAbsen == "") {
 
     document.getElementById("status").innerHTML =
