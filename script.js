@@ -27,6 +27,49 @@ function bunyiBeep() {
 
 }
 
+function tampilJam(){
+
+    const sekarang = new Date();
+
+    const hari = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu"
+    ];
+
+    const bulan = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember"
+    ];
+
+    const tanggal =
+        hari[sekarang.getDay()] + ", " +
+        sekarang.getDate() + " " +
+        bulan[sekarang.getMonth()] + " " +
+        sekarang.getFullYear();
+
+    const jam =
+        sekarang.toLocaleTimeString("id-ID") + " WIB";
+
+    document.getElementById("jamDigital").innerHTML =
+        tanggal + "<br>" + jam;
+
+}
+
 let modeAbsen = "";
 
 let sedangProses = false;
@@ -175,3 +218,7 @@ document.getElementById("btnPulang").onclick = function () {
         "Mode : ABSEN PULANG";
 
 };
+
+tampilJam();
+
+setInterval(tampilJam,1000);
