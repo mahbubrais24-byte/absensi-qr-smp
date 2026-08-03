@@ -131,19 +131,19 @@ if (hasil.siswa) {
 
     setTimeout(function () {
 
-    sedangProses = false;
-
     document.getElementById("nama").innerHTML = "-";
 
     document.getElementById("nis").innerHTML = "-";
 
     document.getElementById("kelas").innerHTML = "-";
 
-    document.getElementById("status").innerHTML = "Menunggu Scan...";
+    document.getElementById("status").innerHTML =
+        "Silakan pilih ABSEN MASUK atau ABSEN PULANG";
 
     document.getElementById("status").classList.remove("sukses");
-
     document.getElementById("status").classList.remove("gagal");
+
+    modeAbsen = "";
 
 }, 2000);
     
