@@ -54,6 +54,10 @@ scanner.start(
 
     bunyiBeep();
 
+    if (navigator.vibrate) {
+    navigator.vibrate(150,100,150);
+}
+
     document.getElementById("status").innerHTML = "Mengirim absensi...";
 
     kirimAbsensi(decodedText, modeAbsen);
