@@ -211,3 +211,23 @@ h2{
     width: 100% !important;
     height: 200px !important;
 }
+
+.jam{
+
+    background:#eaf4ff;
+
+    color:#0d47a1;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+    padding:15px;
+
+    margin:20px 0;
+
+    border-radius:10px;
+
+}
