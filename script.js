@@ -1,5 +1,32 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzw6CoOg9xNm6-dGgJxeWZDGKoOne6wIHUU4p6wZhNy3Si9KY9KrrEUBvh1kSvmi368/exec"
 
+function bunyiBeep() {
+
+    const audio = new AudioContext();
+
+    const oscillator = audio.createOscillator();
+
+    const gain = audio.createGain();
+
+    oscillator.type = "sine";
+
+    oscillator.frequency.value = 900;
+
+    oscillator.connect(gain);
+
+    gain.connect(audio.destination);
+
+    oscillator.start();
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.00001,
+        audio.currentTime + 0.15
+    );
+
+    oscillator.stop(audio.currentTime + 0.15);
+
+}
+
 let modeAbsen = "MASUK";
 
 let sedangProses = false;
@@ -24,6 +51,8 @@ scanner.start(
     sedangProses = true;
 
     document.getElementById("nis").innerHTML = decodedText;
+
+    bunyiBeep();
 
     document.getElementById("status").innerHTML = "Mengirim absensi...";
 
