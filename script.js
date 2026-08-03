@@ -131,6 +131,10 @@ if (hasil.siswa) {
 
     setTimeout(function () {
 
+    sedangProses = false;
+
+    modeAbsen = "";
+
     document.getElementById("nama").innerHTML = "-";
 
     document.getElementById("nis").innerHTML = "-";
@@ -138,12 +142,11 @@ if (hasil.siswa) {
     document.getElementById("kelas").innerHTML = "-";
 
     document.getElementById("status").innerHTML =
-        "Silakan pilih ABSEN MASUK atau ABSEN PULANG";
+"Silakan pilih ABSEN MASUK atau ABSEN PULANG";
 
     document.getElementById("status").classList.remove("sukses");
-    document.getElementById("status").classList.remove("gagal");
 
-    modeAbsen = "";
+    document.getElementById("status").classList.remove("gagal");
 
 }, 2000);
     
