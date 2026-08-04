@@ -99,3 +99,51 @@ button:hover{
     text-align:center;
 
 }
+
+.kartu{
+
+    margin-top:30px;
+
+    background:white;
+
+    border:3px solid #1565c0;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    text-align:center;
+
+}
+
+.header{
+
+    border-bottom:2px solid #1565c0;
+
+    margin-bottom:15px;
+
+}
+
+.header h2{
+
+    margin:0;
+
+    color:#1565c0;
+
+}
+
+.header p{
+
+    margin:5px 0;
+
+    font-weight:bold;
+
+}
+
+#qrArea img{
+
+    margin-top:15px;
+
+    width:220px;
+
+}
