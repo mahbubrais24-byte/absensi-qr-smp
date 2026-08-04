@@ -32,12 +32,20 @@ document.getElementById("btnCari").onclick = async function(){
 
     }
 
-    document.getElementById("hasil").innerHTML=
+    document.getElementById("hasil").innerHTML =
 
-    "<h2>"+hasil.siswa.nama+"</h2>"+
+"<h2>"+hasil.siswa.nama+"</h2>"+
 
-    "<p>NIS : "+hasil.siswa.nis+"</p>"+
+"<p><b>NIS :</b> "+hasil.siswa.nis+"</p>"+
 
-    "<p>Kelas : "+hasil.siswa.kelas+"</p>";
+"<p><b>Kelas :</b> "+hasil.siswa.kelas+"</p>"+
+
+"<br>"+
+
+"<img id='qr' src='https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl="+hasil.siswa.nis+"'>"+
+
+"<br><br>"+
+
+"<a href='https://chart.googleapis.com/chart?cht=qr&chs=500x500&chl="+hasil.siswa.nis+"' download>Download QR</a>";
 
 };
