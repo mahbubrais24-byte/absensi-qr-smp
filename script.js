@@ -161,11 +161,11 @@ async function kirimAbsensi(nis, mode) {
     try {
 
         const response = await fetch(
-            API_URL +
-            "?api=absen" +
-            "?nis=" + encodeURIComponent(nis) +
-            "&mode=" + encodeURIComponent(mode)
-        );
+    API_URL +
+    "?api=absen" +
+    "&nis=" + encodeURIComponent(nis) +
+    "&mode=" + encodeURIComponent(mode)
+);
 
         const hasil = await response.json();
 
