@@ -49,3 +49,16 @@ document.getElementById("btnCari").onclick = async function(){
 "<a href='https://chart.googleapis.com/chart?cht=qr&chs=500x500&chl="+hasil.siswa.nis+"' download>Download QR</a>";
 
 };
+
+document.getElementById("kartuQR").style.display = "block";
+
+document.getElementById("kNama").innerHTML = hasil.siswa.nama;
+
+document.getElementById("kNis").innerHTML = hasil.siswa.nis;
+
+document.getElementById("kKelas").innerHTML = hasil.siswa.kelas;
+
+document.getElementById("qrArea").innerHTML =
+"<img src='https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl="
++ hasil.siswa.nis +
+"'>";
