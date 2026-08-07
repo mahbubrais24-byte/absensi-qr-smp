@@ -215,3 +215,27 @@ button:hover{
     flex:1;
     max-width:220px;
 }
+
+#pesan{
+    display:none;
+    margin-top:15px;
+    padding:12px;
+    border-radius:8px;
+    text-align:center;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#pesan.error{
+    display:block;
+    background:#ffe5e5;
+    color:#c62828;
+    border:2px solid #ef5350;
+}
+
+#pesan.sukses{
+    display:block;
+    background:#e8f5e9;
+    color:#2e7d32;
+    border:2px solid #66bb6a;
+}
