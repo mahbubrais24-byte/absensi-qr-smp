@@ -163,3 +163,29 @@ button:hover{
     text-align:center;
 
 }
+
+.btnCetak{
+
+    margin-top:20px;
+
+    background:#1565c0;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 30px;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+}
+
+.btnCetak:hover{
+
+    background:#0d47a1;
+
+}
