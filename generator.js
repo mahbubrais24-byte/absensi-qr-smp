@@ -35,10 +35,13 @@ document.getElementById("btnCari").onclick = async function () {
 
         document.getElementById("kKelas").innerHTML = hasil.siswa.kelas;
 
-        document.getElementById("qrArea").innerHTML =
-            "<img src='https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl="
-            + hasil.siswa.nis +
-            "'>";
+        document.getElementById("qrArea").innerHTML = "";
+
+new QRCode(document.getElementById("qrArea"), {
+    text: hasil.siswa.nis,
+    width: 220,
+    height: 220
+});
 
     } catch (err) {
 
