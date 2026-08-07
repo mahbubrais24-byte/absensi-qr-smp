@@ -25,8 +25,19 @@ body{
 }
 
 .logo{
+
     width:110px;
+
     margin-bottom:15px;
+
+    transition:.3s;
+
+}
+
+.logo:hover{
+
+    transform:scale(1.05);
+
 }
 
 h1{
@@ -115,5 +126,19 @@ h3{
         transform:translateY(0);
 
     }
+
+}
+
+.top-bar{
+
+    height:8px;
+
+    width:100%;
+
+    background:linear-gradient(90deg,#5B21B6,#7C3AED);
+
+    border-radius:20px 20px 0 0;
+
+    margin:-40px -40px 30px -40px;
 
 }
