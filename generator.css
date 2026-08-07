@@ -140,11 +140,21 @@ button:hover{
 
 }
 
-#qrArea img{
+#qrArea{
 
-    margin-top:15px;
+    display:flex;
 
-    width:220px;
+    justify-content:center;
+
+    align-items:center;
+
+    margin-top:20px;
+
+}
+
+#qrArea canvas{
+
+    display:block;
 
 }
 
