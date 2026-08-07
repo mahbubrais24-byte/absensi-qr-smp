@@ -6,51 +6,48 @@
 }
 
 body{
-    background:linear-gradient(135deg,#1f1b2e,#0f172a);
+    background:linear-gradient(135deg,#0f172a,#1e3a8a);
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    min-height:100vh;
+    padding:20px;
 }
 
-.login-box{
-    width:460px;
-    max-width:95%;
+.container{
+    width:100%;
+    max-width:430px;
     background:#ffffff;
     border-radius:20px;
-    padding:40px;
+    padding:35px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
     text-align:center;
-    box-shadow:0 15px 40px rgba(0,0,0,.35);
-    animation:muncul .6s ease;
 }
 
 .logo{
-
-    width:110px;
-
-    margin-bottom:15px;
-
-    transition:.3s;
-
-}
-
-.logo:hover{
-
-    transform:scale(1.05);
-
+    width:90px;
+    height:90px;
+    object-fit:contain;
+    display:block;
+    margin:0 auto 15px;
 }
 
 h1{
-    color:#4F46E5;
-    margin-bottom:8px;
-    font-size:26px;
-    white-space:nowrap;
+    font-size:32px;
+    color:#1d4ed8;
+    margin-bottom:10px;
 }
 
-h3{
-    color:#555;
-    margin-bottom:35px;
-    font-size:18px;
+h2{
+    font-size:22px;
+    color:#333;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#666;
+    font-size:15px;
+    margin-bottom:30px;
 }
 
 .form-group{
@@ -60,101 +57,79 @@ h3{
 
 .form-group label{
     display:block;
-    margin-bottom:8px;
     font-weight:bold;
-    color:#333;
+    margin-bottom:8px;
+    color:#444;
 }
 
 .form-group input{
     width:100%;
     padding:15px;
-    border:2px solid #ddd;
-    border-radius:10px;
-    font-size:16px;
+    border:2px solid #d1d5db;
+    border-radius:12px;
+    font-size:17px;
     transition:.3s;
 }
 
 .form-group input:focus{
-    border-color:#6D28D9;
+    border-color:#2563eb;
+    box-shadow:0 0 10px rgba(37,99,235,.3);
     outline:none;
-    box-shadow:0 0 10px rgba(109,40,217,.25);
 }
 
 #btnLogin{
-
     width:100%;
-    
-    padding:16px;
-    
+    padding:15px;
     border:none;
-    
     border-radius:12px;
-    
-    background:linear-gradient(90deg,#5B21B6,#7C3AED);
-    
+    background:linear-gradient(90deg,#2563eb,#1d4ed8);
     color:white;
-    
     font-size:20px;
-    
+    font-weight:bold;
     cursor:pointer;
-    
-    transition:.3s;
-
+    transition:.25s;
 }
 
 #btnLogin:hover{
-    background:#7C3AED;
     transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(37,99,235,.3);
+}
+
+#btnLogin:active{
+    transform:scale(.98);
 }
 
 #pesan{
-    margin-top:15px;
+    margin-top:18px;
+    min-height:22px;
+    color:#dc2626;
     font-weight:bold;
-    color:red;
 }
 
 .footer{
-
-    margin-top:30px;
-
+    margin-top:35px;
     color:#777;
-
-    font-size:14px;
-
-    line-height:22px;
-
+    font-size:13px;
+    line-height:1.8;
 }
 
-@keyframes muncul{
+@media(max-width:480px){
 
-    from{
-
-        opacity:0;
-
-        transform:translateY(40px);
-
+    .container{
+        padding:25px;
     }
 
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
+    h1{
+        font-size:28px;
     }
 
-}
+    h2{
+        font-size:20px;
+    }
 
-.top-bar{
-
-    height:8px;
-
-    width:100%;
-
-    background:linear-gradient(90deg,#5B21B6,#7C3AED);
-
-    border-radius:20px 20px 0 0;
-
-    margin:-40px -40px 30px -40px;
+    .logo{
+        width:80px;
+        height:80px;
+    }
 
 }
