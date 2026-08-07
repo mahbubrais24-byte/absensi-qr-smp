@@ -17,13 +17,25 @@ document.getElementById("btnCari").onclick = async function () {
 
         const hasil = await response.json();
 
-        if (!hasil.status) {
+        if(!hasil.status){
 
-            document.getElementById("kartuQR").style.display = "none";
+    const pesan = document.getElementById("pesan");
 
-            alert("NIS tidak ditemukan");
+    pesan.className = "error";
+    pesan.innerHTML = "❌ NIS tidak ditemukan.";
 
-            return;
+    document.getElementById("kartuQR").style.display = "none";
+    document.getElementById("aksi").style.display = "none";
+
+    setTimeout(function(){
+
+        pesan.style.display = "none";
+
+    },3000);
+
+    return;
+
+}
 
         }
 
