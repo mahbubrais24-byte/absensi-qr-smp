@@ -274,19 +274,20 @@ h2{
     margin:0 auto 15px auto;
 }
 
-.logo img{
-    width:120px;
-    height:auto;
-    display:block;
-   position:relative;
-    left:6px;
-}
-
-h1,h2{
+.header{
     text-align:center;
 }
 
+.logo img{
+    width:120px;
+    display:block;
+    margin:0 auto 15px auto;
+}
+
 h1{
-    font-size:32px;
+    margin:0;
+}
+
+h2{
     margin-top:10px;
 }
