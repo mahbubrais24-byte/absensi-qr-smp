@@ -52,3 +52,9 @@ new QRCode(document.getElementById("qrArea"), {
     }
 
 };
+
+document.getElementById("btnCetak").onclick = function(){
+
+    window.print();
+
+};
