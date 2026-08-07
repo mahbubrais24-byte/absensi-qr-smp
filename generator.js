@@ -43,6 +43,8 @@ document.getElementById("btnCari").onclick = async function () {
 
         document.getElementById("aksi").style.display = "flex";
 
+        document.getElementById("pesan").style.display = "none";
+
         document.getElementById("kNama").innerHTML = hasil.siswa.nama;
 
         document.getElementById("kNis").innerHTML = hasil.siswa.nis;
