@@ -275,6 +275,12 @@ h2{
     display:block;
     margin:0 auto;
     width:120px;
+    height:auto;
+}
+
+h1{
+    font-size:32px;
+    margin-top:10px;
 }
     font-size:32px;
 
