@@ -33,6 +33,9 @@ document.getElementById("btnCari").onclick = async function () {
 
     },3000);
 
+    document.getElementById("nisCari").focus();
+    document.getElementById("nisCari").select();
+
     return;
 
 }
