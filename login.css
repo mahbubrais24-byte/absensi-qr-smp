@@ -109,8 +109,9 @@ h2{
 }
 
 .footer{
-    margin-top:35px;
-    color:#777;
+    margin-top:35px:
+    font-size:12px;
+    color:#888;
     font-size:13px;
     line-height:1.8;
 }
@@ -134,4 +135,16 @@ h2{
         height:80px;
     }
 
+}
+
+#btnLogin{
+    transition:.25s;
+}
+
+#btnLogin:hover{
+    transform:translateY(-2px);
+}
+
+#btnLogin:active{
+    transform:scale(.98);
 }
