@@ -152,9 +152,12 @@ button:hover{
 
 }
 
+#qrArea img,
 #qrArea canvas{
 
-    display:block;
+    margin: auto;
+
+    display: block;
 
 }
 
