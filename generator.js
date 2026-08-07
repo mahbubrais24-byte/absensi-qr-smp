@@ -40,8 +40,6 @@ document.getElementById("btnCari").onclick = async function () {
 
 }
 
-        }
-
         document.getElementById("kartuQR").style.display = "block";
 
         document.getElementById("aksi").style.display = "flex";
