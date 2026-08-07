@@ -271,10 +271,20 @@ h2{
     justify-content:center;
     align-items:center;
     width:100%;
-    margin:20px 0;
+    margin:0 auto 15px auto;
 }
 
 .logo img{
     width:120px;
     height:auto;
+    display:block;
+}
+
+h1,h2{
+    text-align:center;
+}
+
+h1{
+    font-size:32px;
+    margin-top:10px;
 }
