@@ -202,3 +202,16 @@ button:hover{
     background:#0d47a1;
 
 }
+
+.aksi{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-top:20px;
+    margin-bottom:20px;
+}
+
+.aksi .btnCetak{
+    flex:1;
+    max-width:220px;
+}
