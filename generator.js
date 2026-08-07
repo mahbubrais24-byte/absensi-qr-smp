@@ -29,6 +29,8 @@ document.getElementById("btnCari").onclick = async function () {
 
         document.getElementById("kartuQR").style.display = "block";
 
+        document.getElementById("aksi").style.display = "flex";
+
         document.getElementById("kNama").innerHTML = hasil.siswa.nama;
 
         document.getElementById("kNis").innerHTML = hasil.siswa.nis;
