@@ -278,6 +278,8 @@ h2{
     width:120px;
     height:auto;
     display:block;
+   position:relative;
+    left:6px;
 }
 
 h1,h2{
