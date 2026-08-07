@@ -267,14 +267,15 @@ h2{
     display:block;
 
 .logo{
+    width:100%;
     text-align:center;
-    margin:20px 0 10px;
+    margin-bottom:15px;
 }
 
 .logo img{
-    width:90px;
-    height:90px;
-    transition:.3s;
+    width:110px;
+    display:block;
+    margin:0 auto;
 }
     font-size:32px;
 
