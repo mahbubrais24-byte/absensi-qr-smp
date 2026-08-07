@@ -58,3 +58,20 @@ document.getElementById("btnCetak").onclick = function(){
     window.print();
 
 };
+
+document.getElementById("btnDownload").onclick = function(){
+
+    html2canvas(document.getElementById("kartuQR")).then(function(canvas){
+
+        const link = document.createElement("a");
+
+        link.download =
+            document.getElementById("kNama").innerHTML + ".png";
+
+        link.href = canvas.toDataURL("image/png");
+
+        link.click();
+
+    });
+
+};
