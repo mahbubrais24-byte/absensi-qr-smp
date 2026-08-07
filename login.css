@@ -138,11 +138,12 @@ h2{
 }
 
 #btnLogin{
-    transition:.25s;
+    transition:all .25s ease;
 }
 
 #btnLogin:hover{
     transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(37,99,235,.35);
 }
 
 #btnLogin:active{
