@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzw6CoOg9xNm6-dGgJxeWZDGKoOne6wIHUU4p6wZhNy3Si9KY9KrrEUBvh1kSvmi368/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby2GgA23nomnNL33YYyMAWQiLZv1QOB7O21s3BYnceQ87jVMMt_ZUm1irYUTAoO_DI1/exec";
 
 document.getElementById("btnLogin").addEventListener("click", function(){
 
