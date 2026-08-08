@@ -1,6 +1,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwJYCfcKvqOUsSspYHJlJ3sqNzMYx6XkoY5C0ZLcX1Sbkce1F5v4uFYkr5L--6rqDWT/exec";
 
-document.getElementById("btnLogin").addEventListener("click", async function(){
+document.getElementById("btnLogin").addEventListener("click", function(){
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
@@ -8,24 +8,19 @@ document.getElementById("btnLogin").addEventListener("click", async function(){
     const tombol = document.getElementById("btnLogin");
 
     if(username === "" || password === ""){
+
         pesan.style.color = "red";
         pesan.innerHTML = "❌ Username dan Password wajib diisi.";
+
         return;
     }
 
     tombol.disabled = true;
-    tombol.innerHTML = "⏳ Memeriksa...";
+    tombol.innerHTML = "⏳ MEMERIKSA...";
 
-    try {
+    const callbackName = "loginCallback_" + Date.now();
 
-        const response = await fetch(
-            API_URL +
-            "?api=login" +
-            "&username=" + encodeURIComponent(username) +
-            "&password=" + encodeURIComponent(password)
-        );
-
-        const hasil = await response.json();
+    window[callbackName] = function(hasil){
 
         if(hasil.status){
 
@@ -33,7 +28,9 @@ document.getElementById("btnLogin").addEventListener("click", async function(){
             pesan.innerHTML = "✅ Login berhasil.";
 
             setTimeout(function(){
+
                 window.location.href = "admin.html";
+
             }, 800);
 
         } else {
@@ -45,15 +42,32 @@ document.getElementById("btnLogin").addEventListener("click", async function(){
             tombol.innerHTML = "🔐 LOGIN";
         }
 
-    } catch(error) {
+        delete window[callbackName];
+        script.remove();
 
-        console.error(error);
+    };
+
+    const script = document.createElement("script");
+
+    script.src =
+        API_URL +
+        "?api=login" +
+        "&username=" + encodeURIComponent(username) +
+        "&password=" + encodeURIComponent(password) +
+        "&callback=" + callbackName;
+
+    script.onerror = function(){
 
         pesan.style.color = "red";
         pesan.innerHTML = "❌ Gagal terhubung ke server.";
 
         tombol.disabled = false;
         tombol.innerHTML = "🔐 LOGIN";
-    }
+
+        delete window[callbackName];
+        script.remove();
+    };
+
+    document.body.appendChild(script);
 
 });
