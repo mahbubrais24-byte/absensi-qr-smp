@@ -110,3 +110,9 @@ function logout() {
     "login.html";
 
 }
+
+  <script src="admin.js"></script>
+
+</body>
+
+</html>
