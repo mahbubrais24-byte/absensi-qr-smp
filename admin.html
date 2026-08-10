@@ -348,12 +348,90 @@
   </div>
 
 
-  <script src="./admin.js"></script>
+  <script>
 
-</body>
 
-</html>
+// ==================================================
+// TEST JAVASCRIPT DASHBOARD
+// ==================================================
 
+window.bukaScanner = function () {
+
+  window.location.href = "index.html";
+
+};
+
+
+window.bukaGenerator = function () {
+
+  window.location.href = "generator.html";
+
+};
+
+
+window.bukaSiswa = function () {
+
+  document.getElementById("konten").innerHTML = `
+
+    <h2>👨‍🎓 DATA SISWA</h2>
+
+    <p>
+      Fitur Data Siswa siap digunakan.
+    </p>
+
+  `;
+
+};
+
+
+window.bukaAbsensi = function () {
+
+  document.getElementById("konten").innerHTML = `
+
+    <h2>📝 DATA ABSENSI</h2>
+
+    <p>
+      Fitur Data Absensi siap digunakan.
+    </p>
+
+  `;
+
+};
+
+
+window.bukaStatistik = function () {
+
+  document.getElementById("konten").innerHTML = `
+
+    <h2>📊 STATISTIK</h2>
+
+    <p>
+      Fitur Statistik siap digunakan.
+    </p>
+
+  `;
+
+};
+
+
+window.logout = function () {
+
+  sessionStorage.removeItem("adminLogin");
+
+  sessionStorage.removeItem("adminNama");
+
+  sessionStorage.removeItem("adminLevel");
+
+  window.location.href = "login.html";
+
+};
+
+
+console.log(
+  "✅ JAVASCRIPT DASHBOARD AKTIF"
+);
+
+</script>
 
 </body>
 
