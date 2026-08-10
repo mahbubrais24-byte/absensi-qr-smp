@@ -369,17 +369,520 @@ window.bukaGenerator = function () {
 };
 
 
+// ==================================================
+// DATA SISWA FINAL
+// ==================================================
+
+var dataSiswaGlobal = [];
+
+
 window.bukaSiswa = function () {
 
-  document.getElementById("konten").innerHTML = `
+  var konten =
+    document.getElementById("konten");
 
-    <h2>👨‍🎓 DATA SISWA</h2>
 
-    <p>
-      Fitur Data Siswa siap digunakan.
-    </p>
+  konten.innerHTML = `
+
+    <div
+      style="
+        text-align:left;
+      "
+    >
+
+      <h2
+        style="
+          text-align:center;
+          color:#2457d6;
+        "
+      >
+        👨‍🎓 DATA SISWA
+      </h2>
+
+
+      <div
+        id="jumlahSiswa"
+        style="
+          text-align:center;
+          font-size:18px;
+          font-weight:bold;
+          color:#2457d6;
+          margin:15px 0;
+        "
+      >
+        ⏳ Memuat data siswa...
+      </div>
+
+
+      <input
+        type="text"
+        id="cariSiswa"
+        placeholder="🔎 Cari NIS, nama, atau kelas..."
+        oninput="filterSiswa()"
+        style="
+          width:100%;
+          padding:14px;
+          border:2px solid #ddd;
+          border-radius:12px;
+          font-size:16px;
+          margin-bottom:15px;
+          outline:none;
+        "
+      >
+
+
+      <div
+        style="
+          overflow-x:auto;
+          background:white;
+          border-radius:12px;
+          border:1px solid #ddd;
+        "
+      >
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            min-width:650px;
+          "
+        >
+
+          <thead>
+
+            <tr
+              style="
+                background:#2457d6;
+                color:white;
+              "
+            >
+
+              <th style="padding:12px">
+                No
+              </th>
+
+              <th style="padding:12px">
+                NIS
+              </th>
+
+              <th style="padding:12px">
+                Nama
+              </th>
+
+              <th style="padding:12px">
+                Jenis Kelamin
+              </th>
+
+              <th style="padding:12px">
+                Kelas
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="bodySiswa">
+
+            <tr>
+
+              <td
+                colspan="5"
+                style="
+                  padding:25px;
+                  text-align:center;
+                "
+              >
+                ⏳ Mengambil data dari server...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          justify-content:center;
+          margin-top:20px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <button
+          onclick="ambilDataSiswa()"
+          style="
+            width:auto;
+            padding:12px 22px;
+            font-size:16px;
+          "
+        >
+          🔄 REFRESH
+        </button>
+
+
+        <button
+          onclick="kembaliDashboard()"
+          style="
+            width:auto;
+            padding:12px 22px;
+            font-size:16px;
+            background:#6c757d;
+          "
+        >
+          ← KEMBALI
+        </button>
+
+      </div>
+
+    </div>
 
   `;
+
+
+  ambilDataSiswa();
+
+};
+
+
+// ==================================================
+// AMBIL DATA SISWA
+// ==================================================
+
+function ambilDataSiswa() {
+
+  var body =
+    document.getElementById(
+      "bodySiswa"
+    );
+
+
+  if (!body) {
+    return;
+  }
+
+
+  body.innerHTML = `
+
+    <tr>
+
+      <td
+        colspan="5"
+        style="
+          padding:25px;
+          text-align:center;
+        "
+      >
+        ⏳ Mengambil data siswa...
+      </td>
+
+    </tr>
+
+  `;
+
+
+  var API_URL =
+    "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
+
+
+  fetch(
+    API_URL +
+    "?api=datasiswa"
+  )
+
+  .then(function(response) {
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+    }
+
+    return response.json();
+
+  })
+
+  .then(function(hasil) {
+
+    console.log(
+      "DATA SISWA:",
+      hasil
+    );
+
+
+    if (
+      !hasil ||
+      hasil.status !== true
+    ) {
+
+      throw new Error(
+        hasil && hasil.pesan
+          ? hasil.pesan
+          : "Data siswa gagal diambil."
+      );
+
+    }
+
+
+    dataSiswaGlobal =
+      hasil.siswa || [];
+
+
+    var jumlah =
+      document.getElementById(
+        "jumlahSiswa"
+      );
+
+
+    if (jumlah) {
+
+      jumlah.innerHTML =
+        "👨‍🎓 Total Siswa: " +
+        dataSiswaGlobal.length;
+
+    }
+
+
+    tampilkanSiswa(
+      dataSiswaGlobal
+    );
+
+  })
+
+  .catch(function(error) {
+
+    console.error(
+      "ERROR DATA SISWA:",
+      error
+    );
+
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="5"
+          style="
+            padding:25px;
+            text-align:center;
+            color:red;
+            font-weight:bold;
+          "
+        >
+
+          ❌ Gagal mengambil data siswa.
+
+          <br><br>
+
+          ${error.message}
+
+        </td>
+
+      </tr>
+
+    `;
+
+  });
+
+}
+
+
+// ==================================================
+// TAMPILKAN DATA SISWA
+// ==================================================
+
+function tampilkanSiswa(data) {
+
+  var body =
+    document.getElementById(
+      "bodySiswa"
+    );
+
+
+  if (!body) {
+    return;
+  }
+
+
+  if (
+    !data ||
+    data.length === 0
+  ) {
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="5"
+          style="
+            padding:25px;
+            text-align:center;
+          "
+        >
+          Data siswa tidak ditemukan.
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  var html = "";
+
+
+  data.forEach(
+    function(siswa, index) {
+
+      html += `
+
+        <tr
+          style="
+            border-bottom:1px solid #ddd;
+          "
+        >
+
+          <td
+            style="
+              padding:10px;
+              text-align:center;
+            "
+          >
+            ${index + 1}
+          </td>
+
+
+          <td style="padding:10px">
+            ${siswa.nis || ""}
+          </td>
+
+
+          <td
+            style="
+              padding:10px;
+              font-weight:bold;
+            "
+          >
+            ${siswa.nama || ""}
+          </td>
+
+
+          <td
+            style="
+              padding:10px;
+              text-align:center;
+            "
+          >
+            ${siswa.jk || ""}
+          </td>
+
+
+          <td
+            style="
+              padding:10px;
+              text-align:center;
+            "
+          >
+            ${siswa.kelas || ""}
+          </td>
+
+        </tr>
+
+      `;
+
+    }
+  );
+
+
+  body.innerHTML =
+    html;
+
+}
+
+
+// ==================================================
+// PENCARIAN SISWA
+// ==================================================
+
+window.filterSiswa = function () {
+
+  var input =
+    document.getElementById(
+      "cariSiswa"
+    );
+
+
+  if (!input) {
+    return;
+  }
+
+
+  var keyword =
+    input.value
+      .toLowerCase()
+      .trim();
+
+
+  var hasil =
+    dataSiswaGlobal.filter(
+      function(siswa) {
+
+        var nis =
+          String(
+            siswa.nis || ""
+          ).toLowerCase();
+
+
+        var nama =
+          String(
+            siswa.nama || ""
+          ).toLowerCase();
+
+
+        var kelas =
+          String(
+            siswa.kelas || ""
+          ).toLowerCase();
+
+
+        return (
+          nis.includes(keyword) ||
+          nama.includes(keyword) ||
+          kelas.includes(keyword)
+        );
+
+      }
+    );
+
+
+  tampilkanSiswa(
+    hasil
+  );
+
+};
+
+
+// ==================================================
+// KEMBALI KE DASHBOARD
+// ==================================================
+
+window.kembaliDashboard = function () {
+
+  location.reload();
 
 };
 
