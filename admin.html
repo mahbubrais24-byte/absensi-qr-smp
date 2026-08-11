@@ -306,20 +306,7 @@
         Data Absensi
 
       </button>
-
-
-      <button
-        onclick="bukaStatistik()"
-      >
-
-        📊<br><br>
-
-        Statistik
-
-      </button>
-
-
-      <button
+<button
         class="logout"
         onclick="logout()"
       >
@@ -1011,6 +998,35 @@ window.bukaAbsensi = function () {
         ℹ️ <b>Catatan:</b> angka "Tidak Hadir" dihitung dari hari Senin–Jumat yang tidak memiliki absensi. Setelah menu <b>Hari Libur</b> dibuat, perhitungan akan otomatis mengecualikan tanggal libur sekolah.
       </div>
 
+      
+      <div class="absensi-box">
+        <div class="absensi-box-header">📈 STATISTIK KEHADIRAN</div>
+
+        <div class="absensi-kartu" id="statistikDalamAbsensiFinal">
+          <div class="absensi-kartu-item"><span>👨‍🎓</span><strong id="dTotalSiswa">0</strong><small>Total Siswa</small></div>
+          <div class="absensi-kartu-item"><span>🟢</span><strong id="dHadir">0</strong><small>Hadir</small></div>
+          <div class="absensi-kartu-item"><span>🔴</span><strong id="dTidakHadir">0</strong><small>Tidak Hadir</small></div>
+          <div class="absensi-kartu-item"><span>🟠</span><strong id="dTerlambat">0</strong><small>Terlambat</small></div>
+          <div class="absensi-kartu-item"><span>🟡</span><strong id="dPulangCepat">0</strong><small>Pulang Cepat</small></div>
+          <div class="absensi-kartu-item"><span>🟢</span><strong id="dSesuai">0</strong><small>Sesuai Jadwal</small></div>
+        </div>
+      </div>
+
+      <div class="absensi-box">
+        <div class="absensi-box-header">🏫 REKAP PER KELAS</div>
+        <div class="absensi-scroll">
+          <table class="tabel-absensi-final" id="tabelRekapKelasDalamAbsensiFinal">
+            <thead>
+              <tr>
+                <th>No</th><th>Kelas</th><th>Siswa</th><th>Hadir</th>
+                <th>Tidak Hadir</th><th>Terlambat</th><th>Pulang Cepat</th><th>Sesuai Jadwal</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="8">Memuat...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
       <button onclick="kembaliDashboard()" class="btn-kembali-final">← KEMBALI</button>
 
     </div>
@@ -1022,8 +1038,7 @@ window.bukaAbsensi = function () {
 };
 
 
-const API_ABSENSI_FINAL =
-  "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
+const API_ABSENSI_FINAL = API_STATISTIK_FINAL;
 let DATA_ABSENSI_FINAL = [];
 let DATA_SISWA_FINAL = [];
 let PERIODE_ABSENSI_FINAL = { start: null, end: null, label: "" };
@@ -1062,6 +1077,7 @@ function ubahPeriodeAbsensiFinal() {
 
   if (DATA_ABSENSI_FINAL.length) {
     renderDataAbsensiFinal();
+  renderStatistikDalamAbsensiFinal();
   }
 }
 
@@ -1554,424 +1570,187 @@ function pasangCSSAbsensiFinal() {
 }
 
 
-window.bukaStatistik = function () {
+function renderStatistikDalamAbsensiFinal() {
 
-  var konten = document.getElementById("konten");
+  var total = DATA_SISWA_FINAL.length;
 
-  if (!konten) {
-    alert("Area konten tidak ditemukan.");
-    return;
-  }
+  var periode = PERIODE_ABSENSI_FINAL || {};
+  var start = periode.start;
+  var end = periode.end;
 
-  konten.innerHTML = `
-    <div class="statistik-final">
+  var kelasFilter = document.getElementById("kelasAbsensiFinal");
+  var kelas = kelasFilter ? String(kelasFilter.value || "") : "";
 
-      <div class="statistik-judul">
-        <h2>📊 STATISTIK ABSENSI</h2>
-        <div id="statistikTanggalFinal" class="statistik-tanggal">
-          Memuat tanggal...
-        </div>
-        <button id="btnRefreshStatistikFinal"
-                onclick="muatStatistikFinal()"
-                class="btn-refresh-final">
-          🔄 REFRESH DATA
-        </button>
-      </div>
+  var keywordEl = document.getElementById("cariAbsensiFinal");
+  var keyword = keywordEl ? String(keywordEl.value || "").trim().toLowerCase() : "";
 
-      <div class="statistik-kartu">
-        <div class="kartu"><div class="kartu-icon">👨‍🎓</div><div id="statTotalFinal" class="kartu-angka">0</div><div class="kartu-label">TOTAL SISWA</div></div>
-        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSudahAbsenFinal" class="kartu-angka">0</div><div class="kartu-label">SUDAH ABSEN</div></div>
-        <div class="kartu"><div class="kartu-icon">🔴</div><div id="statBelumAbsenFinal" class="kartu-angka">0</div><div class="kartu-label">BELUM ABSEN</div></div>
-        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statTepatWaktuFinal" class="kartu-angka">0</div><div class="kartu-label">TEPAT WAKTU</div></div>
-        <div class="kartu"><div class="kartu-icon">🟠</div><div id="statTerlambatFinal" class="kartu-angka">0</div><div class="kartu-label">TERLAMBAT</div></div>
-        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSudahPulangFinal" class="kartu-angka">0</div><div class="kartu-label">SUDAH PULANG</div></div>
-        <div class="kartu"><div class="kartu-icon">⚪</div><div id="statBelumPulangFinal" class="kartu-angka">0</div><div class="kartu-label">BELUM PULANG</div></div>
-        <div class="kartu"><div class="kartu-icon">🟡</div><div id="statPulangCepatFinal" class="kartu-angka">0</div><div class="kartu-label">PULANG CEPAT</div></div>
-        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSesuaiJadwalFinal" class="kartu-angka">0</div><div class="kartu-label">SESUAI JADWAL</div></div>
-      </div>
+  var siswa = DATA_SISWA_FINAL.filter(function(s) {
+    var cocokKelas = !kelas || String(s.kelas || "") === kelas;
+    var teks = (String(s.nis || "") + " " + String(s.nama || "") + " " + String(s.kelas || "")).toLowerCase();
+    return cocokKelas && (!keyword || teks.indexOf(keyword) !== -1);
+  });
 
-      <div class="statistik-box">
-        <div class="statistik-box-header">🏫 REKAP ABSENSI PER KELAS</div>
-        <div class="statistik-scroll">
-          <table id="tabelPerKelasFinal" class="tabel-final">
-            <thead>
-              <tr><th>No</th><th>Kelas</th><th>Total</th><th>Sudah Absen</th><th>Belum Absen</th><th>Tepat Waktu</th><th>Terlambat</th><th>Sudah Pulang</th><th>Belum Pulang</th></tr>
-            </thead>
-            <tbody><tr><td colspan="9">Memuat data...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+  var records = DATA_ABSENSI_FINAL.filter(function(r) {
+    var t = normalisasiTanggalAbsensiFinal(r.tanggal);
+    if (!t) return false;
+    if (start && t < start) return false;
+    if (end && t > end) return false;
+    if (kelas && String(r.kelas || "") !== kelas) return false;
+    if (!keyword) return true;
+    var teks = (String(r.nis || "") + " " + String(r.nama || "") + " " + String(r.kelas || "")).toLowerCase();
+    return teks.indexOf(keyword) !== -1;
+  });
 
-      <div class="statistik-box">
-        <div class="statistik-box-header">
-          🔴 SISWA BELUM ABSEN (<span id="jumlahBelumAbsenFinal">0</span>)
-        </div>
-        <div class="statistik-scroll">
-          <table id="tabelBelumAbsenFinal" class="tabel-final">
-            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
-            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+  var hadirSet = {};
+  var terlambat = 0;
+  var pulangCepat = 0;
+  var sesuai = 0;
 
-      <div class="statistik-box">
-        <div class="statistik-box-header">
-          🟠 SISWA TERLAMBAT (<span id="jumlahTerlambatFinal">0</span>)
-        </div>
-        <div class="statistik-scroll">
-          <table id="tabelTerlambatFinal" class="tabel-final">
-            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
-            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+  records.forEach(function(r) {
+    var nis = String(r.nis || "").trim();
+    var t = normalisasiTanggalAbsensiFinal(r.tanggal);
+    if (nis && t) hadirSet[nis + "|" + t] = true;
 
-      <div class="statistik-box">
-        <div class="statistik-box-header">
-          🟡 SISWA PULANG CEPAT (<span id="jumlahPulangCepatFinal">0</span>)
-        </div>
-        <div class="statistik-scroll">
-          <table id="tabelPulangCepatFinal" class="tabel-final">
-            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
-            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+    var sm = String(r.statusMasuk || r.status || "").toUpperCase();
+    var sp = String(r.statusPulang || "").toUpperCase();
 
-      <button onclick="kembaliDashboard()" class="btn-kembali-final">
-        ← KEMBALI
-      </button>
-    </div>
-  `;
+    if (sm.indexOf("TERLAMBAT") !== -1) terlambat++;
+    if (sp.indexOf("PULANG CEPAT") !== -1) pulangCepat++;
+    if (sp.indexOf("SESUAI") !== -1) sesuai++;
+  });
 
-  pasangCSSStatistikFinal();
-  muatStatistikFinal();
-};
+  var aktif = start && end
+    ? hitungHariKerjaAbsensiFinal(start, end)
+    : 0;
 
+  var hadir = 0;
+  var tidakHadir = 0;
 
-const API_STATISTIK_FINAL =
-  "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
+  siswa.forEach(function(s) {
+    var nis = String(s.nis || "").trim();
+    var hadirSiswa = 0;
 
+    if (nis && aktif > 0) {
+      records.forEach(function(r) {
+        if (String(r.nis || "").trim() === nis) {
+          var t = normalisasiTanggalAbsensiFinal(r.tanggal);
+          if (t && !hadirSet[nis + "|" + t]) {
+            hadirSet[nis + "|" + t] = true;
+            hadirSiswa++;
+          }
+        }
+      });
+    } else {
+      records.forEach(function(r) {
+        if (String(r.nis || "").trim() === nis) hadirSiswa++;
+      });
+    }
 
-function muatStatistikFinal() {
+    hadir += Math.min(hadirSiswa, aktif || hadirSiswa);
+    if (aktif > 0) tidakHadir += Math.max(0, aktif - hadirSiswa);
+  });
 
-  var tombol = document.getElementById("btnRefreshStatistikFinal");
+  setTextDalamAbsensi("dTotalSiswa", total || siswa.length);
+  setTextDalamAbsensi("dHadir", records.length);
+  setTextDalamAbsensi("dTidakHadir", tidakHadir);
+  setTextDalamAbsensi("dTerlambat", terlambat);
+  setTextDalamAbsensi("dPulangCepat", pulangCepat);
+  setTextDalamAbsensi("dSesuai", sesuai);
 
-  if (tombol) {
-    tombol.disabled = true;
-    tombol.innerHTML = "⏳ MEMUAT...";
-  }
-
-  fetch(API_STATISTIK_FINAL + "?api=statistik")
-    .then(function(response) {
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-      return response.json();
-    })
-    .then(function(data) {
-
-      console.log("DATA STATISTIK:", data);
-
-      if (!data || data.status !== true) {
-        throw new Error(
-          data && data.pesan ? data.pesan :
-          "Data statistik tidak tersedia."
-        );
-      }
-
-      setStatistikFinal("statistikTanggalFinal", "Tanggal: " + (data.tanggal || "-"));
-      setStatistikFinal("statTotalFinal", data.totalSiswa || 0);
-      setStatistikFinal("statSudahAbsenFinal", data.sudahAbsen || 0);
-      setStatistikFinal("statBelumAbsenFinal", data.belumAbsen || 0);
-      setStatistikFinal("statTepatWaktuFinal", data.tepatWaktu || 0);
-      setStatistikFinal("statTerlambatFinal", data.terlambat || 0);
-      setStatistikFinal("statSudahPulangFinal", data.sudahPulang || 0);
-      setStatistikFinal("statBelumPulangFinal", data.belumPulang || 0);
-      setStatistikFinal("statPulangCepatFinal", data.pulangCepat || 0);
-      setStatistikFinal("statSesuaiJadwalFinal", data.sesuaiJadwal || 0);
-
-      tampilPerKelasFinal(data.perKelas || []);
-      tampilDaftarFinal("tabelBelumAbsenFinal", "jumlahBelumAbsenFinal", data.daftarBelumAbsen || [], "Semua siswa sudah absen.");
-      tampilDaftarFinal("tabelTerlambatFinal", "jumlahTerlambatFinal", data.daftarTerlambat || [], "Tidak ada siswa terlambat.");
-      tampilDaftarFinal("tabelPulangCepatFinal", "jumlahPulangCepatFinal", data.daftarPulangCepat || [], "Tidak ada siswa pulang cepat.");
-
-    })
-    .catch(function(error) {
-      console.error("ERROR STATISTIK:", error);
-      alert("❌ Gagal mengambil data statistik.\n\n" + error.message);
-    })
-    .finally(function() {
-      if (tombol) {
-        tombol.disabled = false;
-        tombol.innerHTML = "🔄 REFRESH DATA";
-      }
-    });
+  renderRekapKelasDalamAbsensiFinal(siswa, records, aktif);
 }
 
-
-function setStatistikFinal(id, value) {
-  var element = document.getElementById(id);
-  if (element) element.textContent = value;
+function setTextDalamAbsensi(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = value;
 }
 
+function renderRekapKelasDalamAbsensiFinal(siswa, records, aktif) {
 
-function tampilPerKelasFinal(data) {
-
-  var tbody = document.querySelector("#tabelPerKelasFinal tbody");
+  var tbody = document.querySelector("#tabelRekapKelasDalamAbsensiFinal tbody");
   if (!tbody) return;
+
+  var map = {};
+
+  siswa.forEach(function(s) {
+    var k = String(s.kelas || "").trim();
+    if (!k) return;
+
+    if (!map[k]) {
+      map[k] = {
+        kelas: k,
+        siswa: 0,
+        hadir: 0,
+        tidakHadir: 0,
+        terlambat: 0,
+        pulangCepat: 0,
+        sesuai: 0
+      };
+    }
+
+    map[k].siswa++;
+  });
+
+  records.forEach(function(r) {
+    var k = String(r.kelas || "").trim();
+    if (!map[k]) {
+      map[k] = {
+        kelas: k, siswa: 0, hadir: 0, tidakHadir: 0,
+        terlambat: 0, pulangCepat: 0, sesuai: 0
+      };
+    }
+
+    map[k].hadir++;
+
+    var sm = String(r.statusMasuk || r.status || "").toUpperCase();
+    var sp = String(r.statusPulang || "").toUpperCase();
+
+    if (sm.indexOf("TERLAMBAT") !== -1) map[k].terlambat++;
+    if (sp.indexOf("PULANG CEPAT") !== -1) map[k].pulangCepat++;
+    if (sp.indexOf("SESUAI") !== -1) map[k].sesuai++;
+  });
+
+  Object.keys(map).forEach(function(k) {
+    if (aktif > 0) {
+      map[k].tidakHadir = Math.max(
+        0,
+        (map[k].siswa * aktif) - map[k].hadir
+      );
+    }
+  });
+
+  var rows = Object.keys(map).map(function(k) { return map[k]; });
+
+  rows.sort(function(a, b) {
+    return naturalSortAbsensiFinal(a.kelas, b.kelas);
+  });
 
   tbody.innerHTML = "";
 
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9">Rekap per kelas belum tersedia dari API.</td></tr>`;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8">Belum ada data.</td></tr>';
     return;
   }
 
-  data.forEach(function(item, index) {
-
+  rows.forEach(function(x, i) {
     var tr = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td>${index + 1}</td>
-      <td><strong>${escapeStatistikFinal(item.kelas)}</strong></td>
-      <td>${item.total || 0}</td>
-      <td>${item.sudahAbsen || 0}</td>
-      <td>${item.belumAbsen || 0}</td>
-      <td>${item.tepatWaktu || 0}</td>
-      <td>${item.terlambat || 0}</td>
-      <td>${item.sudahPulang || 0}</td>
-      <td>${item.belumPulang || 0}</td>
-    `;
+    tr.innerHTML =
+      "<td>" + (i + 1) + "</td>" +
+      "<td><b>" + escapeStatistikFinal(x.kelas) + "</b></td>" +
+      "<td>" + x.siswa + "</td>" +
+      "<td>" + x.hadir + "</td>" +
+      "<td>" + x.tidakHadir + "</td>" +
+      "<td>" + x.terlambat + "</td>" +
+      "<td>" + x.pulangCepat + "</td>" +
+      "<td>" + x.sesuai + "</td>";
 
     tbody.appendChild(tr);
   });
 }
 
-
-function tampilDaftarFinal(tableId, jumlahId, data, pesanKosong) {
-
-  var tbody = document.querySelector("#" + tableId + " tbody");
-  if (!tbody) return;
-
-  setStatistikFinal(jumlahId, data.length);
-  tbody.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4">🟢 ${pesanKosong}</td></tr>`;
-    return;
-  }
-
-  data.forEach(function(item, index) {
-
-    var tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${escapeStatistikFinal(item.nis)}</td>
-      <td style="text-align:left;">${escapeStatistikFinal(item.nama)}</td>
-      <td>${escapeStatistikFinal(item.kelas)}</td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-}
-
-
-function escapeStatistikFinal(value) {
-
-  return String(value == null ? "" : value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-
-function pasangCSSStatistikFinal() {
-
-  if (document.getElementById("cssStatistikFinal")) return;
-
-  var style = document.createElement("style");
-  style.id = "cssStatistikFinal";
-
-  style.innerHTML = `
-
-    .statistik-final {
-      width:100%;
-      padding:5px;
-      box-sizing:border-box;
-      text-align:left;
-    }
-
-    .statistik-judul {
-      text-align:center;
-      margin-bottom:25px;
-    }
-
-    .statistik-judul h2 {
-      color:#2457d6;
-      margin:5px 0 10px;
-      font-size:28px;
-    }
-
-    .statistik-tanggal {
-      color:#555;
-      font-size:16px;
-      margin-bottom:15px;
-    }
-
-    .btn-refresh-final {
-      border:none;
-      border-radius:10px;
-      padding:11px 20px;
-      background:#2457d6;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-      font-size:15px;
-    }
-
-    .btn-refresh-final:disabled {
-      opacity:.6;
-      cursor:wait;
-    }
-
-    .statistik-kartu {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:15px;
-      margin-bottom:25px;
-    }
-
-    .kartu {
-      background:#f1f5ff;
-      border:2px solid #dbe4ff;
-      border-radius:15px;
-      padding:20px 10px;
-      text-align:center;
-    }
-
-    .kartu-icon {
-      font-size:28px;
-      margin-bottom:5px;
-    }
-
-    .kartu-angka {
-      color:#2457d6;
-      font-size:34px;
-      font-weight:bold;
-    }
-
-    .kartu-label {
-      margin-top:5px;
-      color:#444;
-      font-size:13px;
-      font-weight:bold;
-    }
-
-    .statistik-box {
-      background:white;
-      border:1px solid #dbe4ff;
-      border-radius:15px;
-      overflow:hidden;
-      margin-bottom:25px;
-    }
-
-    .statistik-box-header {
-      padding:15px;
-      background:#f1f5ff;
-      color:#2457d6;
-      font-size:18px;
-      font-weight:bold;
-    }
-
-    .statistik-scroll {
-      width:100%;
-      overflow-x:auto;
-    }
-
-    .tabel-final {
-      width:100%;
-      min-width:700px;
-      border-collapse:collapse;
-    }
-
-    .tabel-final th {
-      padding:11px 8px;
-      background:#2457d6;
-      color:white;
-      white-space:nowrap;
-      font-size:13px;
-      text-align:center;
-    }
-
-    .tabel-final td {
-      padding:10px 8px;
-      border-bottom:1px solid #ddd;
-      font-size:13px;
-      text-align:center;
-    }
-
-    .tabel-final tr:hover {
-      background:#f8faff;
-    }
-
-    .btn-kembali-final {
-      display:block;
-      margin:10px auto 5px;
-      border:none;
-      border-radius:10px;
-      padding:12px 25px;
-      background:#6c757d;
-      color:white;
-      font-size:15px;
-      font-weight:bold;
-      cursor:pointer;
-    }
-
-    @media(max-width:700px) {
-      .statistik-kartu {
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-
-    @media(max-width:450px) {
-      .statistik-kartu {
-        grid-template-columns:1fr;
-      }
-      .statistik-judul h2 {
-        font-size:24px;
-      }
-    }
-
-  `;
-
-  document.head.appendChild(style);
-}
-
-
-
-window.logout = function () {
-
-  sessionStorage.removeItem("adminLogin");
-
-  sessionStorage.removeItem("adminNama");
-
-  sessionStorage.removeItem("adminLevel");
-
-  window.location.href = "login.html";
-
-};
-
-
-console.log(
-  "✅ JAVASCRIPT DASHBOARD AKTIF"
-);
 
 </script>
 
 </body>
-
 </html>
