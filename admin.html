@@ -904,17 +904,401 @@ window.bukaAbsensi = function () {
 
 window.bukaStatistik = function () {
 
-  document.getElementById("konten").innerHTML = `
+  var konten = document.getElementById("konten");
 
-    <h2>📊 STATISTIK</h2>
+  if (!konten) {
+    alert("Area konten tidak ditemukan.");
+    return;
+  }
 
-    <p>
-      Fitur Statistik siap digunakan.
-    </p>
+  konten.innerHTML = `
+    <div class="statistik-final">
+
+      <div class="statistik-judul">
+        <h2>📊 STATISTIK ABSENSI</h2>
+        <div id="statistikTanggalFinal" class="statistik-tanggal">
+          Memuat tanggal...
+        </div>
+        <button id="btnRefreshStatistikFinal"
+                onclick="muatStatistikFinal()"
+                class="btn-refresh-final">
+          🔄 REFRESH DATA
+        </button>
+      </div>
+
+      <div class="statistik-kartu">
+        <div class="kartu"><div class="kartu-icon">👨‍🎓</div><div id="statTotalFinal" class="kartu-angka">0</div><div class="kartu-label">TOTAL SISWA</div></div>
+        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSudahAbsenFinal" class="kartu-angka">0</div><div class="kartu-label">SUDAH ABSEN</div></div>
+        <div class="kartu"><div class="kartu-icon">🔴</div><div id="statBelumAbsenFinal" class="kartu-angka">0</div><div class="kartu-label">BELUM ABSEN</div></div>
+        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statTepatWaktuFinal" class="kartu-angka">0</div><div class="kartu-label">TEPAT WAKTU</div></div>
+        <div class="kartu"><div class="kartu-icon">🟠</div><div id="statTerlambatFinal" class="kartu-angka">0</div><div class="kartu-label">TERLAMBAT</div></div>
+        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSudahPulangFinal" class="kartu-angka">0</div><div class="kartu-label">SUDAH PULANG</div></div>
+        <div class="kartu"><div class="kartu-icon">⚪</div><div id="statBelumPulangFinal" class="kartu-angka">0</div><div class="kartu-label">BELUM PULANG</div></div>
+        <div class="kartu"><div class="kartu-icon">🟡</div><div id="statPulangCepatFinal" class="kartu-angka">0</div><div class="kartu-label">PULANG CEPAT</div></div>
+        <div class="kartu"><div class="kartu-icon">🟢</div><div id="statSesuaiJadwalFinal" class="kartu-angka">0</div><div class="kartu-label">SESUAI JADWAL</div></div>
+      </div>
+
+      <div class="statistik-box">
+        <div class="statistik-box-header">🏫 REKAP ABSENSI PER KELAS</div>
+        <div class="statistik-scroll">
+          <table id="tabelPerKelasFinal" class="tabel-final">
+            <thead>
+              <tr><th>No</th><th>Kelas</th><th>Total</th><th>Sudah Absen</th><th>Belum Absen</th><th>Tepat Waktu</th><th>Terlambat</th><th>Sudah Pulang</th><th>Belum Pulang</th></tr>
+            </thead>
+            <tbody><tr><td colspan="9">Memuat data...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="statistik-box">
+        <div class="statistik-box-header">
+          🔴 SISWA BELUM ABSEN (<span id="jumlahBelumAbsenFinal">0</span>)
+        </div>
+        <div class="statistik-scroll">
+          <table id="tabelBelumAbsenFinal" class="tabel-final">
+            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
+            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="statistik-box">
+        <div class="statistik-box-header">
+          🟠 SISWA TERLAMBAT (<span id="jumlahTerlambatFinal">0</span>)
+        </div>
+        <div class="statistik-scroll">
+          <table id="tabelTerlambatFinal" class="tabel-final">
+            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
+            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="statistik-box">
+        <div class="statistik-box-header">
+          🟡 SISWA PULANG CEPAT (<span id="jumlahPulangCepatFinal">0</span>)
+        </div>
+        <div class="statistik-scroll">
+          <table id="tabelPulangCepatFinal" class="tabel-final">
+            <thead><tr><th>No</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
+            <tbody><tr><td colspan="4">Memuat data...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <button onclick="kembaliDashboard()" class="btn-kembali-final">
+        ← KEMBALI
+      </button>
+    </div>
+  `;
+
+  pasangCSSStatistikFinal();
+  muatStatistikFinal();
+};
+
+
+const API_STATISTIK_FINAL =
+  "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
+
+
+function muatStatistikFinal() {
+
+  var tombol = document.getElementById("btnRefreshStatistikFinal");
+
+  if (tombol) {
+    tombol.disabled = true;
+    tombol.innerHTML = "⏳ MEMUAT...";
+  }
+
+  fetch(API_STATISTIK_FINAL + "?api=statistik")
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+      return response.json();
+    })
+    .then(function(data) {
+
+      console.log("DATA STATISTIK:", data);
+
+      if (!data || data.status !== true) {
+        throw new Error(
+          data && data.pesan ? data.pesan :
+          "Data statistik tidak tersedia."
+        );
+      }
+
+      setStatistikFinal("statistikTanggalFinal", "Tanggal: " + (data.tanggal || "-"));
+      setStatistikFinal("statTotalFinal", data.totalSiswa || 0);
+      setStatistikFinal("statSudahAbsenFinal", data.sudahAbsen || 0);
+      setStatistikFinal("statBelumAbsenFinal", data.belumAbsen || 0);
+      setStatistikFinal("statTepatWaktuFinal", data.tepatWaktu || 0);
+      setStatistikFinal("statTerlambatFinal", data.terlambat || 0);
+      setStatistikFinal("statSudahPulangFinal", data.sudahPulang || 0);
+      setStatistikFinal("statBelumPulangFinal", data.belumPulang || 0);
+      setStatistikFinal("statPulangCepatFinal", data.pulangCepat || 0);
+      setStatistikFinal("statSesuaiJadwalFinal", data.sesuaiJadwal || 0);
+
+      tampilPerKelasFinal(data.perKelas || []);
+      tampilDaftarFinal("tabelBelumAbsenFinal", "jumlahBelumAbsenFinal", data.daftarBelumAbsen || [], "Semua siswa sudah absen.");
+      tampilDaftarFinal("tabelTerlambatFinal", "jumlahTerlambatFinal", data.daftarTerlambat || [], "Tidak ada siswa terlambat.");
+      tampilDaftarFinal("tabelPulangCepatFinal", "jumlahPulangCepatFinal", data.daftarPulangCepat || [], "Tidak ada siswa pulang cepat.");
+
+    })
+    .catch(function(error) {
+      console.error("ERROR STATISTIK:", error);
+      alert("❌ Gagal mengambil data statistik.\n\n" + error.message);
+    })
+    .finally(function() {
+      if (tombol) {
+        tombol.disabled = false;
+        tombol.innerHTML = "🔄 REFRESH DATA";
+      }
+    });
+}
+
+
+function setStatistikFinal(id, value) {
+  var element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+
+function tampilPerKelasFinal(data) {
+
+  var tbody = document.querySelector("#tabelPerKelasFinal tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9">Rekap per kelas belum tersedia dari API.</td></tr>`;
+    return;
+  }
+
+  data.forEach(function(item, index) {
+
+    var tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td><strong>${escapeStatistikFinal(item.kelas)}</strong></td>
+      <td>${item.total || 0}</td>
+      <td>${item.sudahAbsen || 0}</td>
+      <td>${item.belumAbsen || 0}</td>
+      <td>${item.tepatWaktu || 0}</td>
+      <td>${item.terlambat || 0}</td>
+      <td>${item.sudahPulang || 0}</td>
+      <td>${item.belumPulang || 0}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+function tampilDaftarFinal(tableId, jumlahId, data, pesanKosong) {
+
+  var tbody = document.querySelector("#" + tableId + " tbody");
+  if (!tbody) return;
+
+  setStatistikFinal(jumlahId, data.length);
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">🟢 ${pesanKosong}</td></tr>`;
+    return;
+  }
+
+  data.forEach(function(item, index) {
+
+    var tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${escapeStatistikFinal(item.nis)}</td>
+      <td style="text-align:left;">${escapeStatistikFinal(item.nama)}</td>
+      <td>${escapeStatistikFinal(item.kelas)}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+function escapeStatistikFinal(value) {
+
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function pasangCSSStatistikFinal() {
+
+  if (document.getElementById("cssStatistikFinal")) return;
+
+  var style = document.createElement("style");
+  style.id = "cssStatistikFinal";
+
+  style.innerHTML = `
+
+    .statistik-final {
+      width:100%;
+      padding:5px;
+      box-sizing:border-box;
+      text-align:left;
+    }
+
+    .statistik-judul {
+      text-align:center;
+      margin-bottom:25px;
+    }
+
+    .statistik-judul h2 {
+      color:#2457d6;
+      margin:5px 0 10px;
+      font-size:28px;
+    }
+
+    .statistik-tanggal {
+      color:#555;
+      font-size:16px;
+      margin-bottom:15px;
+    }
+
+    .btn-refresh-final {
+      border:none;
+      border-radius:10px;
+      padding:11px 20px;
+      background:#2457d6;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      font-size:15px;
+    }
+
+    .btn-refresh-final:disabled {
+      opacity:.6;
+      cursor:wait;
+    }
+
+    .statistik-kartu {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:15px;
+      margin-bottom:25px;
+    }
+
+    .kartu {
+      background:#f1f5ff;
+      border:2px solid #dbe4ff;
+      border-radius:15px;
+      padding:20px 10px;
+      text-align:center;
+    }
+
+    .kartu-icon {
+      font-size:28px;
+      margin-bottom:5px;
+    }
+
+    .kartu-angka {
+      color:#2457d6;
+      font-size:34px;
+      font-weight:bold;
+    }
+
+    .kartu-label {
+      margin-top:5px;
+      color:#444;
+      font-size:13px;
+      font-weight:bold;
+    }
+
+    .statistik-box {
+      background:white;
+      border:1px solid #dbe4ff;
+      border-radius:15px;
+      overflow:hidden;
+      margin-bottom:25px;
+    }
+
+    .statistik-box-header {
+      padding:15px;
+      background:#f1f5ff;
+      color:#2457d6;
+      font-size:18px;
+      font-weight:bold;
+    }
+
+    .statistik-scroll {
+      width:100%;
+      overflow-x:auto;
+    }
+
+    .tabel-final {
+      width:100%;
+      min-width:700px;
+      border-collapse:collapse;
+    }
+
+    .tabel-final th {
+      padding:11px 8px;
+      background:#2457d6;
+      color:white;
+      white-space:nowrap;
+      font-size:13px;
+      text-align:center;
+    }
+
+    .tabel-final td {
+      padding:10px 8px;
+      border-bottom:1px solid #ddd;
+      font-size:13px;
+      text-align:center;
+    }
+
+    .tabel-final tr:hover {
+      background:#f8faff;
+    }
+
+    .btn-kembali-final {
+      display:block;
+      margin:10px auto 5px;
+      border:none;
+      border-radius:10px;
+      padding:12px 25px;
+      background:#6c757d;
+      color:white;
+      font-size:15px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    @media(max-width:700px) {
+      .statistik-kartu {
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:450px) {
+      .statistik-kartu {
+        grid-template-columns:1fr;
+      }
+      .statistik-judul h2 {
+        font-size:24px;
+      }
+    }
 
   `;
 
-};
+  document.head.appendChild(style);
+}
+
 
 
 window.logout = function () {
