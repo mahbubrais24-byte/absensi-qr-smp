@@ -309,12 +309,13 @@
 
 
       <button
-        type="button"
-        id="btnStatistik"
-        onclick="window.bukaStatistik()"
+        onclick="bukaStatistik()"
       >
+
         📊<br><br>
+
         Statistik
+
       </button>
 
 
@@ -1021,7 +1022,8 @@ window.bukaAbsensi = function () {
 };
 
 
-const API_ABSENSI_FINAL = API_STATISTIK_FINAL;
+const API_ABSENSI_FINAL =
+  "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
 let DATA_ABSENSI_FINAL = [];
 let DATA_SISWA_FINAL = [];
 let PERIODE_ABSENSI_FINAL = { start: null, end: null, label: "" };
