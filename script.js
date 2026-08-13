@@ -1,1232 +1,847 @@
-/* =========================================================
-   ABSENSI QR SMPN 4 PADAHERANG
-   GITHUB SCANNER - TERHUBUNG DENGAN GOOGLE APPS SCRIPT
-   ========================================================= */
-
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbx9loWsIhD7pxfLVAToK-gl06pIgMd1XxnMrXc_L2eoYcKzaH1B_19dwnlUxWkquxTqOA/exec";
+"https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
 
 const params = new URLSearchParams(window.location.search);
 const SCANNER_TICKET = params.get("ticket") || "";
 
-let scanner = null;
-let kameraAktif = false;
-let daftarKamera = [];
-
 let modeAbsen = "";
 let sedangProses = false;
-
-let scanTerakhir = "";
-let waktuScanTerakhir = 0;
+let scanner = null;
 
 
-/* =========================================================
-   ELEMENT
-   ========================================================= */
-
-function getElement(id) {
-  return document.getElementById(id);
-}
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-function tampilStatus(pesan, berhasil = null) {
-
-  const status = getElement("status");
-
-  if (!status) return;
-
-  status.textContent = pesan;
-
-  status.classList.remove(
-    "sukses",
-    "gagal"
-  );
-
-  if (berhasil === true) {
-    status.classList.add("sukses");
-  }
-
-  if (berhasil === false) {
-    status.classList.add("gagal");
-  }
-}
-
-
-/* =========================================================
+/* =========================
    BEEP
-   ========================================================= */
+========================= */
 
 function bunyiBeep() {
 
-  try {
+    try {
 
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
+        const AudioCtx =
+            window.AudioContext ||
+            window.webkitAudioContext;
 
-    if (!AudioContext) return;
+        if (!AudioCtx) return;
 
-    const audio =
-      new AudioContext();
+        const audio = new AudioCtx();
 
-    const oscillator =
-      audio.createOscillator();
+        const oscillator =
+            audio.createOscillator();
 
-    const gain =
-      audio.createGain();
+        const gain =
+            audio.createGain();
 
-    oscillator.type = "sine";
-    oscillator.frequency.value = 900;
+        oscillator.type = "sine";
+        oscillator.frequency.value = 900;
 
-    oscillator.connect(gain);
-    gain.connect(audio.destination);
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
 
-    gain.gain.setValueAtTime(
-      0.00001,
-      audio.currentTime
-    );
+        gain.gain.setValueAtTime(
+            0.2,
+            audio.currentTime
+        );
 
-    gain.gain.exponentialRampToValueAtTime(
-      0.2,
-      audio.currentTime + 0.01
-    );
+        gain.gain.exponentialRampToValueAtTime(
+            0.00001,
+            audio.currentTime + 0.15
+        );
 
-    gain.gain.exponentialRampToValueAtTime(
-      0.00001,
-      audio.currentTime + 0.15
-    );
+        oscillator.start();
 
-    oscillator.start();
+        oscillator.stop(
+            audio.currentTime + 0.15
+        );
 
-    oscillator.stop(
-      audio.currentTime + 0.15
-    );
+    } catch (e) {
 
-  } catch (error) {
+        console.log(e);
 
-    console.log(
-      "Audio tidak tersedia",
-      error
-    );
-  }
+    }
 }
 
 
-/* =========================================================
-   GET KAMERA
-   ========================================================= */
+/* =========================
+   JAM
+========================= */
 
-async function deteksiKamera() {
+function tampilJam() {
 
-  try {
+    const sekarang =
+        new Date();
 
-    if (
-      !navigator.mediaDevices ||
-      !navigator.mediaDevices.getUserMedia
-    ) {
+    const hari = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu"
+    ];
 
-      throw new Error(
-        "Browser tidak mendukung kamera."
-      );
+    const bulan = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember"
+    ];
+
+    const tanggal =
+        hari[sekarang.getDay()] +
+        ", " +
+        sekarang.getDate() +
+        " " +
+        bulan[sekarang.getMonth()] +
+        " " +
+        sekarang.getFullYear();
+
+    const jam =
+        sekarang.toLocaleTimeString(
+            "id-ID"
+        ) +
+        " WIB";
+
+    const el =
+        document.getElementById(
+            "jamDigital"
+        );
+
+    if (el) {
+
+        el.innerHTML =
+            tanggal +
+            "<br>" +
+            jam;
+
     }
-
-    /*
-     * Meminta izin kamera terlebih dahulu.
-     * Setelah izin diberikan, stream dimatikan.
-     */
-
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false
-      });
-
-    stream
-      .getTracks()
-      .forEach(track => track.stop());
-
-    /*
-     * Ambil daftar kamera.
-     */
-
-    daftarKamera =
-      await Html5Qrcode.getCameras();
-
-    if (
-      !daftarKamera ||
-      daftarKamera.length === 0
-    ) {
-
-      throw new Error(
-        "Kamera tidak ditemukan."
-      );
-    }
-
-    console.log(
-      "Daftar kamera:",
-      daftarKamera
-    );
-
-    return daftarKamera;
-
-  } catch (error) {
-
-    console.error(
-      "Deteksi kamera gagal:",
-      error
-    );
-
-    tampilStatus(
-      "❌ Kamera tidak dapat digunakan. " +
-      "Pastikan izin kamera diberikan.",
-      false
-    );
-
-    return [];
-  }
 }
 
 
-/* =========================================================
-   PILIH KAMERA BELAKANG
-   ========================================================= */
+/* =========================
+   STATUS
+========================= */
 
-function pilihKameraBelakang(
-  cameras
+function tampilStatus(
+    pesan,
+    berhasil = null
 ) {
 
-  if (
-    !cameras ||
-    cameras.length === 0
-  ) {
+    const status =
+        document.getElementById(
+            "status"
+        );
 
-    return null;
-  }
+    if (!status) return;
 
-  const kataBelakang = [
-    "back",
-    "rear",
-    "environment",
-    "belakang"
-  ];
+    status.innerHTML =
+        pesan;
 
-  for (
-    const kamera of cameras
-  ) {
+    status.classList.remove(
+        "sukses"
+    );
 
-    const nama =
-      String(
-        kamera.label || ""
-      ).toLowerCase();
+    status.classList.remove(
+        "gagal"
+    );
 
-    if (
-      kataBelakang.some(
-        kata =>
-          nama.includes(kata)
-      )
-    ) {
+    if (berhasil === true) {
 
-      return kamera.id;
+        status.classList.add(
+            "sukses"
+        );
+
     }
-  }
 
-  /*
-   * Jika hanya satu kamera,
-   * gunakan kamera tersebut.
-   */
+    if (berhasil === false) {
 
-  if (
-    cameras.length === 1
-  ) {
+        status.classList.add(
+            "gagal"
+        );
 
-    return cameras[0].id;
-  }
-
-  return cameras[0].id;
+    }
 }
 
 
-/* =========================================================
+/* =========================
    MULAI SCANNER
-   ========================================================= */
+========================= */
 
-async function mulaiScanner(
-  cameraId = null
-) {
+function mulaiScanner() {
 
-  try {
+    try {
 
-    await hentikanScanner();
-
-    tampilStatus(
-      "📷 Menyiapkan kamera..."
-    );
-
-    /*
-     * Pastikan library tersedia.
-     */
-
-    if (
-      typeof Html5Qrcode ===
-      "undefined"
-    ) {
-
-      throw new Error(
-        "Library Html5Qrcode belum dimuat."
-      );
-    }
-
-    /*
-     * Deteksi kamera.
-     */
-
-    if (
-      daftarKamera.length === 0
-    ) {
-
-      daftarKamera =
-        await deteksiKamera();
-    }
-
-    if (
-      daftarKamera.length === 0
-    ) {
-
-      throw new Error(
-        "Tidak ada kamera."
-      );
-    }
-
-    /*
-     * Pilih kamera.
-     */
-
-    const selectedCamera =
-      cameraId ||
-      pilihKameraBelakang(
-        daftarKamera
-      );
-
-    if (!selectedCamera) {
-
-      throw new Error(
-        "Kamera belum dipilih."
-      );
-    }
-
-    /*
-     * Buat scanner baru.
-     */
-
-    scanner =
-      new Html5Qrcode(
-        "reader"
-      );
-
-    const config = {
-
-      fps: 10,
-
-      qrbox:
-        function (
-          width,
-          height
+        if (
+            typeof Html5Qrcode ===
+            "undefined"
         ) {
 
-          const ukuran =
-            Math.floor(
-              Math.min(
-                width,
-                height
-              ) * 0.70
+            tampilStatus(
+                "❌ Library QR belum dimuat.",
+                false
             );
 
-          const finalSize =
-            Math.max(
-              180,
-              Math.min(
-                320,
-                ukuran
-              )
+            return;
+
+        }
+
+        scanner =
+            new Html5Qrcode(
+                "reader"
             );
 
-          return {
-            width:
-              finalSize,
+        tampilStatus(
+            "📷 Membuka kamera..."
+        );
 
-            height:
-              finalSize
-          };
-        },
 
-      aspectRatio: 1.0,
+        /*
+         * INI BAGIAN PENTING.
+         *
+         * Kita kembali menggunakan
+         * facingMode environment.
+         *
+         * Metode ini adalah metode
+         * scanner lama yang sudah
+         * pernah berhasil di HP Mas Rais.
+         */
 
-      disableFlip: false
-    };
+        scanner.start(
 
-    await scanner.start(
+            {
+                facingMode:
+                    "environment"
+            },
 
-      selectedCamera,
+            {
+                fps: 10,
 
-      config,
+                qrbox: {
+                    width: 250,
+                    height: 250
+                },
 
-      ketikaQRBerhasil,
+                aspectRatio: 1.0
 
-      function () {
-        // Error pembacaan frame
-        // tidak perlu ditampilkan.
-      }
-    );
+            },
 
-    kameraAktif = true;
+            function(decodedText) {
 
-    tampilStatus(
-      modeAbsen
-        ? "📷 Kamera aktif — siap scan."
-        : "📷 Kamera aktif — pilih mode absensi."
-    );
+                ketikaQRTerbaca(
+                    decodedText
+                );
 
-    console.log(
-      "Scanner aktif:",
-      selectedCamera
-    );
+            },
 
-  } catch (error) {
+            function(errorMessage) {
 
-    kameraAktif = false;
+                // Jangan tampilkan error
+                // setiap frame.
 
-    console.error(
-      "Scanner gagal:",
-      error
-    );
+            }
 
-    tampilStatus(
-      "❌ Kamera gagal dimulai: " +
-      (error.message || error),
-      false
-    );
-  }
+        )
+        .then(function() {
+
+            tampilStatus(
+                modeAbsen
+                    ? "📷 Kamera aktif — siap scan."
+                    : "📷 Kamera aktif — pilih MASUK/PULANG."
+            );
+
+            console.log(
+                "Kamera berhasil aktif."
+            );
+
+        })
+        .catch(function(error) {
+
+            console.error(
+                "Kamera gagal:",
+                error
+            );
+
+            tampilStatus(
+                "❌ Kamera gagal dibuka. " +
+                "Pastikan izin kamera Chrome aktif.",
+                false
+            );
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        tampilStatus(
+            "❌ Scanner gagal dimulai.",
+            false
+        );
+
+    }
+
 }
 
 
-/* =========================================================
-   QR BERHASIL
-   ========================================================= */
+/* =========================
+   QR TERBACA
+========================= */
 
-function ketikaQRBerhasil(
-  decodedText
+function ketikaQRTerbaca(
+    decodedText
 ) {
 
-  const qr =
-    String(
-      decodedText || ""
-    ).trim();
+    if (
+        sedangProses
+    ) {
 
-  if (!qr) {
-    return;
-  }
+        return;
 
-  /*
-   * Jangan scan saat request sebelumnya
-   * masih diproses.
-   */
+    }
 
-  if (sedangProses) {
-    return;
-  }
+    if (
+        !modeAbsen
+    ) {
 
-  /*
-   * Mode wajib dipilih.
-   */
+        tampilStatus(
+            "⚠️ Silakan pilih ABSEN MASUK atau ABSEN PULANG terlebih dahulu.",
+            false
+        );
 
-  if (!modeAbsen) {
+        return;
+
+    }
+
+    if (
+        !decodedText
+    ) {
+
+        return;
+
+    }
+
+    sedangProses =
+        true;
+
+    const qr =
+        String(
+            decodedText
+        ).trim();
+
+    document.getElementById(
+        "nis"
+    ).innerHTML =
+        qr;
+
+    bunyiBeep();
+
+    if (
+        navigator.vibrate
+    ) {
+
+        navigator.vibrate(
+            200
+        );
+
+    }
 
     tampilStatus(
-      "⚠️ Pilih ABSEN MASUK atau ABSEN PULANG terlebih dahulu.",
-      false
+        "⏳ Mengirim absensi..."
     );
 
-    return;
-  }
-
-  /*
-   * Cegah QR sama terbaca berkali-kali.
-   */
-
-  const sekarang =
-    Date.now();
-
-  if (
-    qr === scanTerakhir &&
-    sekarang -
-      waktuScanTerakhir <
-      3000
-  ) {
-
-    return;
-  }
-
-  scanTerakhir = qr;
-
-  waktuScanTerakhir =
-    sekarang;
-
-  sedangProses = true;
-
-  bunyiBeep();
-
-  if (
-    navigator.vibrate
-  ) {
-
-    navigator.vibrate(
-      [
-        100,
-        50,
-        100
-      ]
+    kirimAbsensi(
+        qr,
+        modeAbsen
     );
-  }
 
-  tampilStatus(
-    "⏳ Memproses absensi..."
-  );
-
-  kirimAbsensi(
-    qr,
-    modeAbsen
-  );
 }
 
 
-/* =========================================================
-   KIRIM ABSENSI KE APPS SCRIPT
-   ========================================================= */
+/* =========================
+   KIRIM ABSENSI
+========================= */
 
 async function kirimAbsensi(
-  qr,
-  mode
+    qr,
+    mode
 ) {
 
-  try {
+    try {
 
-    if (
-      !SCANNER_TICKET
-    ) {
+        /*
+         * Kalau scanner dibuka
+         * dari aplikasi utama,
+         * ticket akan tersedia.
+         */
 
-      throw new Error(
-        "Ticket scanner tidak ditemukan."
-      );
-    }
+        let url;
 
-    /*
-     * API baru:
-     *
-     * api=scan
-     * ticket=...
-     * qr=...
-     * mode=MASUK/PULANG
-     */
+        if (
+            SCANNER_TICKET
+        ) {
 
-    const url =
-      API_URL +
-      "?api=scan" +
-      "&ticket=" +
-      encodeURIComponent(
-        SCANNER_TICKET
-      ) +
-      "&qr=" +
-      encodeURIComponent(
-        qr
-      ) +
-      "&mode=" +
-      encodeURIComponent(
-        mode
-      );
+            url =
+                API_URL +
+                "?api=scan" +
+                "&ticket=" +
+                encodeURIComponent(
+                    SCANNER_TICKET
+                ) +
+                "&qr=" +
+                encodeURIComponent(
+                    qr
+                ) +
+                "&mode=" +
+                encodeURIComponent(
+                    mode
+                );
 
-    console.log(
-      "Mengirim scan ke server..."
-    );
+        } else {
 
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
+            /*
+             * Kompatibilitas dengan
+             * sistem lama.
+             */
+
+            url =
+                API_URL +
+                "?api=absen" +
+                "&nis=" +
+                encodeURIComponent(
+                    qr
+                ) +
+                "&mode=" +
+                encodeURIComponent(
+                    mode
+                );
+
         }
-      );
 
-    if (
-      !response.ok
-    ) {
 
-      throw new Error(
-        "Server HTTP " +
-        response.status
-      );
+        const response =
+            await fetch(
+                url,
+                {
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        const hasil =
+            await response.json();
+
+
+        console.log(
+            "Hasil server:",
+            hasil
+        );
+
+
+        /*
+         * Sistem baru
+         */
+
+        if (
+            hasil.success === true
+        ) {
+
+            tampilkanBerhasil(
+                hasil
+            );
+
+        }
+
+        /*
+         * Sistem lama
+         */
+
+        else if (
+            hasil.status === true
+        ) {
+
+            tampilkanBerhasilLama(
+                hasil
+            );
+
+        }
+
+        else {
+
+            tampilkanGagal(
+                hasil.message ||
+                hasil.pesan ||
+                "Absensi ditolak."
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Error:",
+            error
+        );
+
+        tampilkanGagal(
+            "Gagal menghubungi server."
+        );
+
     }
 
-    const hasil =
-      await response.json();
 
-    console.log(
-      "Response:",
-      hasil
+    setTimeout(
+        function() {
+
+            sedangProses =
+                false;
+
+        },
+        2500
     );
 
-    if (
-      hasil &&
-      hasil.success === true
-    ) {
-
-      tampilkanBerhasil(
-        hasil
-      );
-
-    } else {
-
-      tampilkanGagal(
-        hasil?.message ||
-        "Absensi ditolak."
-      );
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Koneksi server gagal:",
-      error
-    );
-
-    tampilkanGagal(
-      error.message ||
-      "Gagal menghubungi server."
-    );
-  }
-
-  /*
-   * Izinkan scan berikutnya.
-   */
-
-  setTimeout(
-    function () {
-
-      sedangProses =
-        false;
-
-    },
-    2500
-  );
 }
 
 
-/* =========================================================
-   HASIL BERHASIL
-   ========================================================= */
+/* =========================
+   HASIL BARU
+========================= */
 
 function tampilkanBerhasil(
-  hasil
+    hasil
 ) {
 
-  bunyiBeep();
+    const nama =
+        hasil.nama ||
+        "-";
 
-  if (
-    navigator.vibrate
-  ) {
+    const nis =
+        hasil.nisn ||
+        "-";
 
-    navigator.vibrate(
-      [
-        100,
-        50,
-        100
-      ]
+    const kelas =
+        hasil.kelas ||
+        "-";
+
+    document.getElementById(
+        "nama"
+    ).innerHTML =
+        nama;
+
+    document.getElementById(
+        "nis"
+    ).innerHTML =
+        nis;
+
+    document.getElementById(
+        "kelas"
+    ).innerHTML =
+        kelas;
+
+    tampilStatus(
+        "✅ " +
+        (
+            hasil.message ||
+            "Absensi berhasil."
+        ),
+        true
     );
-  }
 
-  const nama =
-    hasil.nama ||
-    "-";
+    ambilStatistik();
 
-  const nisn =
-    hasil.nisn ||
-    "-";
+    resetSetelahScan();
 
-  const kelas =
-    hasil.kelas ||
-    "-";
-
-  const pesan =
-    hasil.message ||
-    "Absensi berhasil.";
-
-  /*
-   * Tampilkan data siswa.
-   */
-
-  const namaEl =
-    getElement("nama");
-
-  const nisEl =
-    getElement("nis");
-
-  const kelasEl =
-    getElement("kelas");
-
-  if (namaEl) {
-    namaEl.textContent =
-      nama;
-  }
-
-  if (nisEl) {
-    nisEl.textContent =
-      nisn;
-  }
-
-  if (kelasEl) {
-    kelasEl.textContent =
-      kelas;
-  }
-
-  tampilStatus(
-    "✅ " +
-    pesan,
-    true
-  );
-
-  /*
-   * Bersihkan setelah beberapa detik.
-   */
-
-  setTimeout(
-    function () {
-
-      if (namaEl) {
-        namaEl.textContent =
-          "-";
-      }
-
-      if (nisEl) {
-        nisEl.textContent =
-          "-";
-      }
-
-      if (kelasEl) {
-        kelasEl.textContent =
-          "-";
-      }
-
-      tampilStatus(
-        "📷 Siap scan siswa berikutnya."
-      );
-
-    },
-    3000
-  );
 }
 
 
-/* =========================================================
-   HASIL GAGAL
-   ========================================================= */
+/* =========================
+   HASIL SISTEM LAMA
+========================= */
+
+function tampilkanBerhasilLama(
+    hasil
+) {
+
+    if (
+        hasil.siswa
+    ) {
+
+        document.getElementById(
+            "nama"
+        ).innerHTML =
+            hasil.siswa.nama;
+
+        document.getElementById(
+            "nis"
+        ).innerHTML =
+            hasil.siswa.nis;
+
+        document.getElementById(
+            "kelas"
+        ).innerHTML =
+            hasil.siswa.kelas;
+
+    }
+
+    tampilStatus(
+        hasil.pesan ||
+        "Absensi berhasil.",
+        true
+    );
+
+    ambilStatistik();
+
+    resetSetelahScan();
+
+}
+
+
+/* =========================
+   GAGAL
+========================= */
 
 function tampilkanGagal(
-  pesan
+    pesan
 ) {
 
-  tampilStatus(
-    "❌ " +
-    pesan,
-    false
-  );
-
-  if (
-    navigator.vibrate
-  ) {
-
-    navigator.vibrate(
-      [
-        250,
-        100,
-        250
-      ]
+    tampilStatus(
+        "❌ " +
+        pesan,
+        false
     );
-  }
 
-  setTimeout(
-    function () {
+    if (
+        navigator.vibrate
+    ) {
 
-      sedangProses =
+        navigator.vibrate(
+            [
+                200,
+                100,
+                200
+            ]
+        );
+
+    }
+
+    setTimeout(
+        function() {
+
+            sedangProses =
+                false;
+
+            tampilStatus(
+                modeAbsen
+                    ? "📷 Siap scan lagi."
+                    : "Silakan pilih ABSEN MASUK atau ABSEN PULANG."
+            );
+
+        },
+        2500
+    );
+
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetSetelahScan() {
+
+    setTimeout(
+        function() {
+
+            document.getElementById(
+                "nama"
+            ).innerHTML =
+                "-";
+
+            document.getElementById(
+                "nis"
+            ).innerHTML =
+                "-";
+
+            document.getElementById(
+                "kelas"
+            ).innerHTML =
+                "-";
+
+            tampilStatus(
+                "📷 Siap scan siswa berikutnya."
+            );
+
+            modeAbsen =
+                "";
+
+            sedangProses =
+                false;
+
+        },
+        2500
+    );
+
+}
+
+
+/* =========================
+   STATISTIK
+========================= */
+
+async function ambilStatistik() {
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL +
+                "?api=statistik",
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+        const hasil =
+            await response.json();
+
+
+        if (
+            hasil.status
+        ) {
+
+            const masuk =
+                document.getElementById(
+                    "jmlMasuk"
+                );
+
+            const pulang =
+                document.getElementById(
+                    "jmlPulang"
+                );
+
+            if (masuk) {
+
+                masuk.innerHTML =
+                    hasil.masuk;
+
+            }
+
+            if (pulang) {
+
+                pulang.innerHTML =
+                    hasil.pulang;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.log(
+            "Statistik:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================
+   TOMBOL MASUK
+========================= */
+
+document.getElementById(
+    "btnMasuk"
+).onclick =
+function() {
+
+    modeAbsen =
+        "MASUK";
+
+    sedangProses =
         false;
 
-      tampilStatus(
-        modeAbsen
-          ? "📷 Siap mencoba scan lagi."
-          : "Silakan pilih mode absensi."
-      );
+    tampilStatus(
+        "🟢 Mode : ABSEN MASUK"
+    );
 
-    },
-    3000
-  );
-}
+};
 
 
-/* =========================================================
-   MODE MASUK
-   ========================================================= */
+/* =========================
+   TOMBOL PULANG
+========================= */
 
-function setModeMasuk() {
+document.getElementById(
+    "btnPulang"
+).onclick =
+function() {
 
-  modeAbsen =
-    "MASUK";
+    modeAbsen =
+        "PULANG";
 
-  sedangProses =
-    false;
-
-  scanTerakhir =
-    "";
-
-  waktuScanTerakhir =
-    0;
-
-  tampilStatus(
-    "🟢 Mode ABSEN MASUK aktif."
-  );
-}
-
-
-/* =========================================================
-   MODE PULANG
-   ========================================================= */
-
-function setModePulang() {
-
-  modeAbsen =
-    "PULANG";
-
-  sedangProses =
-    false;
-
-  scanTerakhir =
-    "";
-
-  waktuScanTerakhir =
-    0;
-
-  tampilStatus(
-    "🔵 Mode ABSEN PULANG aktif."
-  );
-}
-
-
-/* =========================================================
-   ALIAS UNTUK TOMBOL LAMA
-   ========================================================= */
-
-function absenMasuk() {
-  setModeMasuk();
-}
-
-function absenPulang() {
-  setModePulang();
-}
-
-function setMode(mode) {
-
-  const nilai =
-    String(
-      mode || ""
-    ).toUpperCase();
-
-  if (
-    nilai === "MASUK"
-  ) {
-
-    setModeMasuk();
-
-  } else if (
-    nilai === "PULANG"
-  ) {
-
-    setModePulang();
-
-  } else {
+    sedangProses =
+        false;
 
     tampilStatus(
-      "⚠️ Mode tidak valid.",
-      false
-    );
-  }
-}
-
-
-/* =========================================================
-   GANTI KAMERA
-   ========================================================= */
-
-async function gantiKamera(
-  cameraId
-) {
-
-  if (!cameraId) {
-    return;
-  }
-
-  await mulaiScanner(
-    cameraId
-  );
-}
-
-
-/* =========================================================
-   KAMERA BELAKANG
-   ========================================================= */
-
-async function kameraBelakang() {
-
-  if (
-    daftarKamera.length === 0
-  ) {
-
-    daftarKamera =
-      await deteksiKamera();
-  }
-
-  const id =
-    pilihKameraBelakang(
-      daftarKamera
+        "🔵 Mode : ABSEN PULANG"
     );
 
-  if (id) {
+};
 
-    await gantiKamera(
-      id
-    );
-  }
-}
 
+/* =========================
+   START
+========================= */
 
-/* =========================================================
-   KAMERA DEPAN
-   ========================================================= */
+tampilJam();
 
-async function kameraDepan() {
+ambilStatistik();
 
-  if (
-    daftarKamera.length === 0
-  ) {
-
-    daftarKamera =
-      await deteksiKamera();
-  }
-
-  if (
-    daftarKamera.length < 2
-  ) {
-
-    tampilStatus(
-      "ℹ️ Perangkat hanya memiliki satu kamera."
-    );
-
-    return;
-  }
-
-  const depan =
-    daftarKamera.find(
-      kamera => {
-
-        const nama =
-          String(
-            kamera.label || ""
-          ).toLowerCase();
-
-        return (
-          nama.includes("front") ||
-          nama.includes("user") ||
-          nama.includes("depan")
-        );
-      }
-    );
-
-  const id =
-    depan
-      ? depan.id
-      : daftarKamera[
-          daftarKamera.length - 1
-        ].id;
-
-  await gantiKamera(
-    id
-  );
-}
-
-
-/* =========================================================
-   PILIH KAMERA
-   ========================================================= */
-
-async function pilihKamera(
-  cameraId
-) {
-
-  await gantiKamera(
-    cameraId
-  );
-}
-
-
-/* =========================================================
-   STOP SCANNER
-   ========================================================= */
-
-async function hentikanScanner() {
-
-  const scannerLama =
-    scanner;
-
-  scanner = null;
-
-  kameraAktif =
-    false;
-
-  if (!scannerLama) {
-    return;
-  }
-
-  try {
-
-    await scannerLama.stop();
-
-  } catch (error) {
-
-    console.log(
-      "Stop scanner:",
-      error
-    );
-  }
-
-  try {
-
-    scannerLama.clear();
-
-  } catch (error) {
-
-    console.log(
-      "Clear scanner:",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   STOP CAMERA
-   ========================================================= */
-
-async function stopCamera() {
-
-  await hentikanScanner();
-}
-
-
-/* =========================================================
-   TORCH / LAMPU
-   ========================================================= */
-
-async function toggleTorch() {
-
-  /*
-   * html5-qrcode tidak selalu menyediakan
-   * torch pada semua perangkat.
-   */
-
-  try {
-
-    if (
-      !scanner ||
-      !kameraAktif
-    ) {
-
-      tampilStatus(
-        "Kamera belum aktif.",
-        false
-      );
-
-      return;
-    }
-
-    if (
-      typeof scanner.applyVideoConstraints !==
-      "function"
-    ) {
-
-      tampilStatus(
-        "Lampu kamera tidak didukung perangkat ini."
-      );
-
-      return;
-    }
-
-    tampilStatus(
-      "💡 Kontrol lampu kamera tergantung dukungan perangkat."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   RESET
-   ========================================================= */
-
-async function resetScanner() {
-
-  sedangProses =
-    false;
-
-  scanTerakhir =
-    "";
-
-  waktuScanTerakhir =
-    0;
-
-  await mulaiScanner();
-}
-
-
-/* =========================================================
-   JAM DIGITAL
-   ========================================================= */
-
-function updateJam() {
-
-  const jam =
-    getElement(
-      "jamDigital"
-    );
-
-  if (!jam) {
-    return;
-  }
-
-  jam.textContent =
-    new Date().toLocaleString(
-      "id-ID",
-      {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-      }
-    ) +
-    " WIB";
-}
-
-
-/* =========================================================
-   VALIDASI TICKET
-   ========================================================= */
-
-function cekTicket() {
-
-  if (
-    !SCANNER_TICKET
-  ) {
-
-    tampilStatus(
-      "❌ Scanner tidak memiliki ticket. " +
-      "Silakan buka scanner dari aplikasi utama.",
-      false
-    );
-
-    return false;
-  }
-
-  return true;
-}
-
-
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
-
-async function initScannerApp() {
-
-  console.log(
-    "Absensi QR Scanner dimulai."
-  );
-
-  /*
-   * Ticket wajib ada.
-   */
-
-  if (
-    !cekTicket()
-  ) {
-
-    return;
-  }
-
-  /*
-   * Jam.
-   */
-
-  updateJam();
-
-  setInterval(
-    updateJam,
+setInterval(
+    tampilJam,
     1000
-  );
+);
 
-  /*
-   * Mulai kamera.
-   */
-
-  await mulaiScanner();
-}
-
-
-/* =========================================================
-   PAGE LOAD
-   ========================================================= */
-
-window.addEventListener(
-  "DOMContentLoaded",
-  function () {
-
-    initScannerApp();
-
-  }
+setInterval(
+    ambilStatistik,
+    10000
 );
 
 
-/* =========================================================
-   PAGE CLOSE
-   ========================================================= */
+/*
+ * Mulai kamera setelah
+ * halaman benar-benar siap.
+ */
 
 window.addEventListener(
-  "beforeunload",
-  function () {
+    "load",
+    function() {
 
-    if (scanner) {
+        setTimeout(
+            function() {
 
-      try {
+                mulaiScanner();
 
-        scanner.stop();
+            },
+            500
+        );
 
-      } catch (_) {}
     }
-  }
 );
