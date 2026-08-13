@@ -711,56 +711,112 @@ async function ambilStatistik() {
                 API_URL +
                 "?api=statistik",
                 {
-                    cache:
-                        "no-store"
+                    method: "GET",
+                    cache: "no-store"
                 }
             );
+
+        if (!response.ok) {
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+        }
 
         const hasil =
             await response.json();
 
+        console.log(
+            "DATA STATISTIK:",
+            hasil
+        );
 
-        if (
-            hasil.status
-        ) {
+        /*
+         * Pastikan nilai selalu berupa angka.
+         */
 
-            const masuk =
-                document.getElementById(
-                    "jmlMasuk"
-                );
+        const jumlahMasuk =
+            Number(
+                hasil.masuk ??
+                hasil.data?.masuk ??
+                hasil.jumlahMasuk ??
+                0
+            );
 
-            const pulang =
-                document.getElementById(
-                    "jmlPulang"
-                );
+        const jumlahPulang =
+            Number(
+                hasil.pulang ??
+                hasil.data?.pulang ??
+                hasil.jumlahPulang ??
+                0
+            );
 
-            if (masuk) {
+        /*
+         * Tampilkan ke layar.
+         */
 
-                masuk.innerHTML =
-                    hasil.masuk;
+        const masuk =
+            document.getElementById(
+                "jmlMasuk"
+            );
 
-            }
+        const pulang =
+            document.getElementById(
+                "jmlPulang"
+            );
 
-            if (pulang) {
+        if (masuk) {
 
-                pulang.innerHTML =
-                    hasil.pulang;
-
-            }
+            masuk.textContent =
+                jumlahMasuk;
 
         }
 
-    } catch (error) {
+        if (pulang) {
+
+            pulang.textContent =
+                jumlahPulang;
+
+        }
 
         console.log(
-            "Statistik:",
+            "Masuk:",
+            jumlahMasuk,
+            "Pulang:",
+            jumlahPulang
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal mengambil statistik:",
             error
         );
 
+        /*
+         * Jangan tampilkan undefined.
+         * Jika server gagal, tampilkan 0.
+         */
+
+        const masuk =
+            document.getElementById(
+                "jmlMasuk"
+            );
+
+        const pulang =
+            document.getElementById(
+                "jmlPulang"
+            );
+
+        if (masuk) {
+            masuk.textContent = "0";
+        }
+
+        if (pulang) {
+            pulang.textContent = "0";
+        }
     }
-
 }
-
 
 /* =========================
    TOMBOL MASUK
