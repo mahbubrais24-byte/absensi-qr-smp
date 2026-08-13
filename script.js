@@ -1,17 +1,22 @@
 const API_URL =
 "https://script.google.com/macros/s/AKfycbzF-dkz-qiprRO1UiBXip0LzojGuAAdGyvYuCYEVEiDbh0l1r5-uKfqkouPwzceK-bD/exec";
 
-const params = new URLSearchParams(window.location.search);
-const SCANNER_TICKET = params.get("ticket") || "";
+const params =
+new URLSearchParams(
+    window.location.search
+);
+
+const SCANNER_TICKET =
+params.get("ticket") || "";
 
 let modeAbsen = "";
 let sedangProses = false;
 let scanner = null;
 
 
-/* =========================
+/* ==============================
    BEEP
-========================= */
+============================== */
 
 function bunyiBeep() {
 
@@ -21,9 +26,8 @@ function bunyiBeep() {
             window.AudioContext ||
             window.webkitAudioContext;
 
-        if (!AudioCtx) return;
-
-        const audio = new AudioCtx();
+        const audio =
+            new AudioCtx();
 
         const oscillator =
             audio.createOscillator();
@@ -37,17 +41,12 @@ function bunyiBeep() {
         oscillator.connect(gain);
         gain.connect(audio.destination);
 
-        gain.gain.setValueAtTime(
-            0.2,
-            audio.currentTime
-        );
+        oscillator.start();
 
         gain.gain.exponentialRampToValueAtTime(
             0.00001,
             audio.currentTime + 0.15
         );
-
-        oscillator.start();
 
         oscillator.stop(
             audio.currentTime + 0.15
@@ -58,12 +57,13 @@ function bunyiBeep() {
         console.log(e);
 
     }
+
 }
 
 
-/* =========================
+/* ==============================
    JAM
-========================= */
+============================== */
 
 function tampilJam() {
 
@@ -123,12 +123,13 @@ function tampilJam() {
             jam;
 
     }
+
 }
 
 
-/* =========================
+/* ==============================
    STATUS
-========================= */
+============================== */
 
 function tampilStatus(
     pesan,
@@ -168,14 +169,38 @@ function tampilStatus(
         );
 
     }
+
 }
 
 
-/* =========================
-   MULAI SCANNER
-========================= */
+/* ==============================
+   CEK TICKET
+============================== */
 
-function mulaiScanner() {
+function cekTicket() {
+
+    if (!SCANNER_TICKET) {
+
+        tampilStatus(
+            "❌ Scanner tidak memiliki ticket. " +
+            "Silakan buka scanner dari aplikasi utama.",
+            false
+        );
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+
+/* ==============================
+   MULAI KAMERA
+============================== */
+
+function mulaiKamera() {
 
     try {
 
@@ -185,7 +210,7 @@ function mulaiScanner() {
         ) {
 
             tampilStatus(
-                "❌ Library QR belum dimuat.",
+                "❌ Library scanner belum dimuat.",
                 false
             );
 
@@ -201,18 +226,6 @@ function mulaiScanner() {
         tampilStatus(
             "📷 Membuka kamera..."
         );
-
-
-        /*
-         * INI BAGIAN PENTING.
-         *
-         * Kita kembali menggunakan
-         * facingMode environment.
-         *
-         * Metode ini adalah metode
-         * scanner lama yang sudah
-         * pernah berhasil di HP Mas Rais.
-         */
 
         scanner.start(
 
@@ -235,7 +248,7 @@ function mulaiScanner() {
 
             function(decodedText) {
 
-                ketikaQRTerbaca(
+                ketikaQR(
                     decodedText
                 );
 
@@ -243,8 +256,7 @@ function mulaiScanner() {
 
             function(errorMessage) {
 
-                // Jangan tampilkan error
-                // setiap frame.
+                // Abaikan error pembacaan frame.
 
             }
 
@@ -254,18 +266,14 @@ function mulaiScanner() {
             tampilStatus(
                 modeAbsen
                     ? "📷 Kamera aktif — siap scan."
-                    : "📷 Kamera aktif — pilih MASUK/PULANG."
-            );
-
-            console.log(
-                "Kamera berhasil aktif."
+                    : "📷 Kamera aktif — pilih MASUK atau PULANG."
             );
 
         })
         .catch(function(error) {
 
             console.error(
-                "Kamera gagal:",
+                "Kamera:",
                 error
             );
 
@@ -293,38 +301,35 @@ function mulaiScanner() {
 }
 
 
-/* =========================
+/* ==============================
    QR TERBACA
-========================= */
+============================== */
 
-function ketikaQRTerbaca(
+function ketikaQR(
     decodedText
 ) {
+
+    const qr =
+        String(
+            decodedText || ""
+        ).trim();
+
+    if (!qr) {
+        return;
+    }
 
     if (
         sedangProses
     ) {
-
         return;
-
     }
 
-    if (
-        !modeAbsen
-    ) {
+    if (!modeAbsen) {
 
         tampilStatus(
-            "⚠️ Silakan pilih ABSEN MASUK atau ABSEN PULANG terlebih dahulu.",
+            "⚠️ Pilih ABSEN MASUK atau ABSEN PULANG terlebih dahulu.",
             false
         );
-
-        return;
-
-    }
-
-    if (
-        !decodedText
-    ) {
 
         return;
 
@@ -333,15 +338,14 @@ function ketikaQRTerbaca(
     sedangProses =
         true;
 
-    const qr =
-        String(
-            decodedText
-        ).trim();
-
     document.getElementById(
         "nis"
     ).innerHTML =
         qr;
+
+    tampilStatus(
+        "⏳ QR terbaca. Memproses absensi..."
+    );
 
     bunyiBeep();
 
@@ -350,14 +354,10 @@ function ketikaQRTerbaca(
     ) {
 
         navigator.vibrate(
-            200
+            150
         );
 
     }
-
-    tampilStatus(
-        "⏳ Mengirim absensi..."
-    );
 
     kirimAbsensi(
         qr,
@@ -367,9 +367,9 @@ function ketikaQRTerbaca(
 }
 
 
-/* =========================
+/* ==============================
    KIRIM ABSENSI
-========================= */
+============================== */
 
 async function kirimAbsensi(
     qr,
@@ -378,54 +378,45 @@ async function kirimAbsensi(
 
     try {
 
-        /*
-         * Kalau scanner dibuka
-         * dari aplikasi utama,
-         * ticket akan tersedia.
-         */
+        if (!SCANNER_TICKET) {
 
-        let url;
-
-        if (
-            SCANNER_TICKET
-        ) {
-
-            url =
-                API_URL +
-                "?api=scan" +
-                "&ticket=" +
-                encodeURIComponent(
-                    SCANNER_TICKET
-                ) +
-                "&qr=" +
-                encodeURIComponent(
-                    qr
-                ) +
-                "&mode=" +
-                encodeURIComponent(
-                    mode
-                );
-
-        } else {
-
-            /*
-             * Kompatibilitas dengan
-             * sistem lama.
-             */
-
-            url =
-                API_URL +
-                "?api=absen" +
-                "&nis=" +
-                encodeURIComponent(
-                    qr
-                ) +
-                "&mode=" +
-                encodeURIComponent(
-                    mode
-                );
+            throw new Error(
+                "Ticket scanner tidak ditemukan."
+            );
 
         }
+
+        /*
+         * INI PERUBAHAN TERPENTING.
+         *
+         * Sebelumnya:
+         * api=absen
+         *
+         * Sekarang:
+         * api=scan
+         */
+
+        const url =
+            API_URL +
+            "?api=scan" +
+            "&ticket=" +
+            encodeURIComponent(
+                SCANNER_TICKET
+            ) +
+            "&qr=" +
+            encodeURIComponent(
+                qr
+            ) +
+            "&mode=" +
+            encodeURIComponent(
+                mode
+            );
+
+
+        console.log(
+            "Mengirim absensi:",
+            url
+        );
 
 
         const response =
@@ -436,9 +427,24 @@ async function kirimAbsensi(
                         "GET",
 
                     cache:
-                        "no-store"
+                        "no-store",
+
+                    credentials:
+                        "omit"
                 }
             );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
 
 
         const hasil =
@@ -446,45 +452,83 @@ async function kirimAbsensi(
 
 
         console.log(
-            "Hasil server:",
+            "HASIL ABSENSI:",
             hasil
         );
 
-
-        /*
-         * Sistem baru
-         */
 
         if (
             hasil.success === true
         ) {
 
-            tampilkanBerhasil(
-                hasil
-            );
+            document.getElementById(
+                "nama"
+            ).innerHTML =
+                hasil.nama ||
+                "-";
 
-        }
+            document.getElementById(
+                "nis"
+            ).innerHTML =
+                hasil.nisn ||
+                qr;
 
-        /*
-         * Sistem lama
-         */
+            document.getElementById(
+                "kelas"
+            ).innerHTML =
+                hasil.kelas ||
+                "-";
 
-        else if (
-            hasil.status === true
-        ) {
 
-            tampilkanBerhasilLama(
-                hasil
-            );
-
-        }
-
-        else {
-
-            tampilkanGagal(
+            let pesan =
                 hasil.message ||
-                hasil.pesan ||
-                "Absensi ditolak."
+                "Absensi berhasil.";
+
+            if (
+                hasil.jamDatang
+            ) {
+
+                pesan +=
+                    "<br>Jam Masuk: " +
+                    hasil.jamDatang;
+
+            }
+
+            if (
+                hasil.jamPulang
+            ) {
+
+                pesan +=
+                    "<br>Jam Pulang: " +
+                    hasil.jamPulang;
+
+            }
+
+
+            tampilStatus(
+                "✅ " +
+                pesan,
+                true
+            );
+
+
+            /*
+             * Setelah berhasil,
+             * langsung update statistik.
+             */
+
+            await ambilStatistik();
+
+
+        } else {
+
+            tampilStatus(
+                "❌ " +
+                (
+                    hasil.message ||
+                    "Absensi ditolak."
+                ),
+                false
             );
 
         }
@@ -493,12 +537,14 @@ async function kirimAbsensi(
     } catch (error) {
 
         console.error(
-            "Error:",
+            "ABSENSI ERROR:",
             error
         );
 
-        tampilkanGagal(
-            "Gagal menghubungi server."
+        tampilStatus(
+            "❌ Gagal mengirim absensi: " +
+            error.message,
+            false
         );
 
     }
@@ -511,196 +557,15 @@ async function kirimAbsensi(
                 false;
 
         },
-        2500
+        2000
     );
 
 }
 
 
-/* =========================
-   HASIL BARU
-========================= */
-
-function tampilkanBerhasil(
-    hasil
-) {
-
-    const nama =
-        hasil.nama ||
-        "-";
-
-    const nis =
-        hasil.nisn ||
-        "-";
-
-    const kelas =
-        hasil.kelas ||
-        "-";
-
-    document.getElementById(
-        "nama"
-    ).innerHTML =
-        nama;
-
-    document.getElementById(
-        "nis"
-    ).innerHTML =
-        nis;
-
-    document.getElementById(
-        "kelas"
-    ).innerHTML =
-        kelas;
-
-    tampilStatus(
-        "✅ " +
-        (
-            hasil.message ||
-            "Absensi berhasil."
-        ),
-        true
-    );
-
-    ambilStatistik();
-
-    resetSetelahScan();
-
-}
-
-
-/* =========================
-   HASIL SISTEM LAMA
-========================= */
-
-function tampilkanBerhasilLama(
-    hasil
-) {
-
-    if (
-        hasil.siswa
-    ) {
-
-        document.getElementById(
-            "nama"
-        ).innerHTML =
-            hasil.siswa.nama;
-
-        document.getElementById(
-            "nis"
-        ).innerHTML =
-            hasil.siswa.nis;
-
-        document.getElementById(
-            "kelas"
-        ).innerHTML =
-            hasil.siswa.kelas;
-
-    }
-
-    tampilStatus(
-        hasil.pesan ||
-        "Absensi berhasil.",
-        true
-    );
-
-    ambilStatistik();
-
-    resetSetelahScan();
-
-}
-
-
-/* =========================
-   GAGAL
-========================= */
-
-function tampilkanGagal(
-    pesan
-) {
-
-    tampilStatus(
-        "❌ " +
-        pesan,
-        false
-    );
-
-    if (
-        navigator.vibrate
-    ) {
-
-        navigator.vibrate(
-            [
-                200,
-                100,
-                200
-            ]
-        );
-
-    }
-
-    setTimeout(
-        function() {
-
-            sedangProses =
-                false;
-
-            tampilStatus(
-                modeAbsen
-                    ? "📷 Siap scan lagi."
-                    : "Silakan pilih ABSEN MASUK atau ABSEN PULANG."
-            );
-
-        },
-        2500
-    );
-
-}
-
-
-/* =========================
-   RESET
-========================= */
-
-function resetSetelahScan() {
-
-    setTimeout(
-        function() {
-
-            document.getElementById(
-                "nama"
-            ).innerHTML =
-                "-";
-
-            document.getElementById(
-                "nis"
-            ).innerHTML =
-                "-";
-
-            document.getElementById(
-                "kelas"
-            ).innerHTML =
-                "-";
-
-            tampilStatus(
-                "📷 Siap scan siswa berikutnya."
-            );
-
-            modeAbsen =
-                "";
-
-            sedangProses =
-                false;
-
-        },
-        2500
-    );
-
-}
-
-
-/* =========================
+/* ==============================
    STATISTIK
-========================= */
+============================== */
 
 async function ambilStatistik() {
 
@@ -708,119 +573,98 @@ async function ambilStatistik() {
 
         const response =
             await fetch(
+
                 API_URL +
                 "?api=statistik",
+
                 {
-                    method: "GET",
-                    cache: "no-store"
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store",
+
+                    credentials:
+                        "omit"
                 }
+
             );
 
-        if (!response.ok) {
+
+        if (
+            !response.ok
+        ) {
+
             throw new Error(
                 "HTTP " +
                 response.status
             );
+
         }
+
 
         const hasil =
             await response.json();
 
+
         console.log(
-            "DATA STATISTIK:",
+            "STATISTIK:",
             hasil
         );
 
-        /*
-         * Pastikan nilai selalu berupa angka.
-         */
 
-        const jumlahMasuk =
-            Number(
-                hasil.masuk ??
-                hasil.data?.masuk ??
-                hasil.jumlahMasuk ??
-                0
-            );
+        if (
+            hasil.status === true
+        ) {
 
-        const jumlahPulang =
-            Number(
-                hasil.pulang ??
-                hasil.data?.pulang ??
-                hasil.jumlahPulang ??
-                0
-            );
+            const masuk =
+                document.getElementById(
+                    "jmlMasuk"
+                );
 
-        /*
-         * Tampilkan ke layar.
-         */
+            const pulang =
+                document.getElementById(
+                    "jmlPulang"
+                );
 
-        const masuk =
-            document.getElementById(
-                "jmlMasuk"
-            );
 
-        const pulang =
-            document.getElementById(
-                "jmlPulang"
-            );
+            if (masuk) {
 
-        if (masuk) {
+                masuk.innerHTML =
+                    Number(
+                        hasil.masuk || 0
+                    );
 
-            masuk.textContent =
-                jumlahMasuk;
+            }
+
+
+            if (pulang) {
+
+                pulang.innerHTML =
+                    Number(
+                        hasil.pulang || 0
+                    );
+
+            }
 
         }
 
-        if (pulang) {
-
-            pulang.textContent =
-                jumlahPulang;
-
-        }
-
-        console.log(
-            "Masuk:",
-            jumlahMasuk,
-            "Pulang:",
-            jumlahPulang
-        );
 
     } catch (error) {
 
         console.error(
-            "Gagal mengambil statistik:",
+            "Statistik error:",
             error
         );
 
-        /*
-         * Jangan tampilkan undefined.
-         * Jika server gagal, tampilkan 0.
-         */
-
-        const masuk =
-            document.getElementById(
-                "jmlMasuk"
-            );
-
-        const pulang =
-            document.getElementById(
-                "jmlPulang"
-            );
-
-        if (masuk) {
-            masuk.textContent = "0";
-        }
-
-        if (pulang) {
-            pulang.textContent = "0";
-        }
     }
+
 }
 
-/* =========================
-   TOMBOL MASUK
-========================= */
+
+/* ==============================
+   MODE MASUK
+============================== */
 
 document.getElementById(
     "btnMasuk"
@@ -830,9 +674,6 @@ function() {
     modeAbsen =
         "MASUK";
 
-    sedangProses =
-        false;
-
     tampilStatus(
         "🟢 Mode : ABSEN MASUK"
     );
@@ -840,9 +681,9 @@ function() {
 };
 
 
-/* =========================
-   TOMBOL PULANG
-========================= */
+/* ==============================
+   MODE PULANG
+============================== */
 
 document.getElementById(
     "btnPulang"
@@ -852,9 +693,6 @@ function() {
     modeAbsen =
         "PULANG";
 
-    sedangProses =
-        false;
-
     tampilStatus(
         "🔵 Mode : ABSEN PULANG"
     );
@@ -862,42 +700,74 @@ function() {
 };
 
 
-/* =========================
+/* ==============================
    START
-========================= */
-
-tampilJam();
-
-ambilStatistik();
-
-setInterval(
-    tampilJam,
-    1000
-);
-
-setInterval(
-    ambilStatistik,
-    10000
-);
-
-
-/*
- * Mulai kamera setelah
- * halaman benar-benar siap.
- */
+============================== */
 
 window.addEventListener(
     "load",
     function() {
 
-        setTimeout(
-            function() {
+        tampilJam();
 
-                mulaiScanner();
-
-            },
-            500
+        setInterval(
+            tampilJam,
+            1000
         );
+
+
+        /*
+         * Ambil statistik awal.
+         */
+
+        ambilStatistik();
+
+
+        /*
+         * Update statistik setiap 5 detik.
+         */
+
+        setInterval(
+            ambilStatistik,
+            5000
+        );
+
+
+        /*
+         * Ticket WAJIB ada.
+         */
+
+        if (
+            cekTicket()
+        ) {
+
+            mulaiKamera();
+
+        }
+
+    }
+);
+
+
+/* ==============================
+   STOP KAMERA
+============================== */
+
+window.addEventListener(
+    "beforeunload",
+    function() {
+
+        if (
+            scanner
+        ) {
+
+            try {
+
+                scanner.stop();
+
+            } catch (e) {}
+
+        }
 
     }
 );
